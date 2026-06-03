@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #f8f9fb;
+      color: #1a1a2e;
+      padding: 24px;
+      min-height: 100%;
+    }
+
+    /* === HEADER === */
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .header h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 13px;
+      color: #888;
+    }
+
+    /* === STATUS CARD === */
+    .status-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-left: 4px solid #ccc;
+      transition: border-color 0.3s;
+    }
+
+    .status-card.active {
+      border-left-color: #4caf50;
+    }
+
+    .status-card.inactive {
+      border-left-color: #ff9800;
+    }
+
+    .status-icon {
+      font-size: 28px;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+
+    .status-card.active .status-icon {
+      background: #e8f5e9;
+    }
+
+    .status-card.inactive .status-icon {
+      background: #fff3e0;
+    }
+
+    .status-info {
+      flex: 1;
+    }
+
+    .status-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #888;
+      font-weight: 600;
+    }
+
+    .status-value {
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .status-card.active .status-value {
+      color: #2e7d32;
+    }
+
+    .status-card.inactive .status-value {
+      color: #e65100;
+    }
+
+    /* === SETTINGS === */
+    .settings-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .settings-card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #444;
+      margin-bottom: 6px;
+    }
+
+    .form-group select,
+    .form-group input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      color: #333;
+      background: #fafafa;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    .form-group select:focus,
+    .form-group input:focus {
+      border-color: #5c6bc0;
+      box-shadow: 0 0 0 3px rgba(92, 107, 192, 0.12);
+      background: white;
+    }
+
+    .form-hint {
+      font-size: 11px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    /* === EMAIL INFO === */
+    .email-info {
+      background: #e8eaf6;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #3949ab;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .email-info strong {
+      font-weight: 600;
+    }
+
+    /* === BUTTONS === */
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #5c6bc0, #3f51b5);
+      color: white;
+      box-shadow: 0 2px 8px rgba(63, 81, 181, 0.3);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 4px 12px rgba(63, 81, 181, 0.4);
+    }
+
+    .btn-danger {
+      background: white;
+      color: #d32f2f;
+      border: 1.5px solid #ffcdd2;
+    }
+
+    .btn-danger:hover {
+      background: #ffebee;
+    }
+
+    .btn-test {
+      background: white;
+      color: #f57c00;
+      border: 1.5px solid #ffe0b2;
+      margin-bottom: 20px;
+    }
+
+    .btn-test:hover {
+      background: #fff3e0;
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* === LOADING === */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: none;
+    }
+
+    .btn-danger .spinner,
+    .btn-test .spinner {
+      border-color: rgba(0,0,0,0.15);
+      border-top-color: currentColor;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* === TOAST === */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #333;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease;
+      z-index: 100;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.success {
+      background: #2e7d32;
+    }
+
+    .toast.error {
+      background: #c62828;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <div class="header">
+    <h2>⏰ Cài Đặt Trigger</h2>
+    <p>Tự động kiểm tra dữ liệu thưởng lễ mỗi ngày</p>
+  </div>
+
+  <!-- STATUS -->
+  <div class="status-card inactive" id="statusCard">
+    <div class="status-icon" id="statusIcon">⏸️</div>
+    <div class="status-info">
+      <div class="status-label">Trạng thái</div>
+      <div class="status-value" id="statusText">Đang tải...</div>
+    </div>
+  </div>
+
+  <!-- EMAIL INFO -->
+  <div class="email-info">
+    <span>📧</span>
+    <span>Email nhận báo cáo: <strong id="emailDisplay">đang tải...</strong></span>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="settings-card">
+    <h3>⚙️ Cấu hình</h3>
+
+    <div class="form-group">
+      <label for="hourSelect">Giờ chạy kiểm tra</label>
+      <select id="hourSelect">
+        <option value="5">🌅 5:00 - 6:00 sáng</option>
+        <option value="6">🌅 6:00 - 7:00 sáng</option>
+        <option value="7" selected>🌞 7:00 - 8:00 sáng</option>
+        <option value="8">🌞 8:00 - 9:00 sáng</option>
+        <option value="9">🌞 9:00 - 10:00 sáng</option>
+        <option value="10">☀️ 10:00 - 11:00 sáng</option>
+        <option value="11">☀️ 11:00 - 12:00 trưa</option>
+      </select>
+      <div class="form-hint">Google Apps Script sẽ chạy ngẫu nhiên trong khoảng 1 tiếng được chọn</div>
+    </div>
+  </div>
+
+  <!-- TEST BUTTON -->
+  <button class="btn btn-test" id="btnTest" onclick="runTest()">
+    <div class="spinner" id="spinnerTest"></div>
+    <span>📧 Chạy thử & Gửi Email ngay</span>
+  </button>
+
+  <!-- ACTION BUTTONS -->
+  <div class="button-group">
+    <button class="btn btn-primary" id="btnInstall" onclick="installTrigger()">
+      <div class="spinner" id="spinnerInstall"></div>
+      <span id="btnInstallText">▶️ Kích hoạt</span>
+    </button>
+    <button class="btn btn-danger" id="btnRemove" onclick="removeTrigger()" disabled>
+      <div class="spinner" id="spinnerRemove"></div>
+      <span>⏹️ Tắt Trigger</span>
+    </button>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // === KHỞI TẠO: Load trạng thái hiện tại ===
+    window.onload = function () {
+      google.script.run
+        .withSuccessHandler(updateUI)
+        .withFailureHandler(function (e) { showToast("Lỗi tải: " + e.message, "error"); })
+        .getTriggerStatus();
+    };
+
+    // === CẬP NHẬT GIAO DIỆN THEO TRẠNG THÁI ===
+    function updateUI(status) {
+      var card = document.getElementById("statusCard");
+      var icon = document.getElementById("statusIcon");
+      var text = document.getElementById("statusText");
+      var btnInstall = document.getElementById("btnInstall");
+      var btnInstallText = document.getElementById("btnInstallText");
+      var btnRemove = document.getElementById("btnRemove");
+      var emailDisplay = document.getElementById("emailDisplay");
+
+      emailDisplay.textContent = status.email || "(không rõ)";
+
+      if (status.isActive) {
+        card.className = "status-card active";
+        icon.textContent = "✅";
+        text.textContent = "Đang hoạt động — chạy lúc " + status.hour + ":00 - " + (parseInt(status.hour) + 1) + ":00";
+        btnInstallText.textContent = "🔄 Cập nhật giờ";
+        btnRemove.disabled = false;
+
+        // Set dropdown to current hour
+        document.getElementById("hourSelect").value = status.hour;
+      } else {
+        card.className = "status-card inactive";
+        icon.textContent = "⏸️";
+        text.textContent = "Chưa kích hoạt";
+        btnInstallText.textContent = "▶️ Kích hoạt";
+        btnRemove.disabled = true;
+      }
+    }
+
+    // === CÀI / CẬP NHẬT TRIGGER ===
+    function installTrigger() {
+      var hour = parseInt(document.getElementById("hourSelect").value);
+      setLoading("btnInstall", "spinnerInstall", true);
+
+      google.script.run
+        .withSuccessHandler(function (result) {
+          setLoading("btnInstall", "spinnerInstall", false);
+          showToast(result.message, "success");
+          updateUI(result.status);
+        })
+        .withFailureHandler(function (e) {
+          setLoading("btnInstall", "spinnerInstall", false);
+          showToast("Lỗi: " + e.message, "error");
+        })
+        .installTriggerWithHour(hour);
+    }
+
+    // === GỠ TRIGGER ===
+    function removeTrigger() {
+      setLoading("btnRemove", "spinnerRemove", true);
+
+      google.script.run
+        .withSuccessHandler(function (result) {
+          setLoading("btnRemove", "spinnerRemove", false);
+          showToast(result.message, "success");
+          updateUI(result.status);
+        })
+        .withFailureHandler(function (e) {
+          setLoading("btnRemove", "spinnerRemove", false);
+          showToast("Lỗi: " + e.message, "error");
+        })
+        .removeTriggerFromUI();
+    }
+
+    // === CHẠY THỬ ===
+    function runTest() {
+      setLoading("btnTest", "spinnerTest", true);
+
+      google.script.run
+        .withSuccessHandler(function (result) {
+          setLoading("btnTest", "spinnerTest", false);
+          showToast(result, "success");
+        })
+        .withFailureHandler(function (e) {
+          setLoading("btnTest", "spinnerTest", false);
+          showToast("Lỗi: " + e.message, "error");
+        })
+        .runAuditFromUI();
+    }
+
+    // === TIỆN ÍCH ===
+    function setLoading(btnId, spinnerId, isLoading) {
+      document.getElementById(btnId).disabled = isLoading;
+      document.getElementById(spinnerId).style.display = isLoading ? "inline-block" : "none";
+    }
+
+    function showToast(msg, type) {
+      var toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.className = "toast " + (type || "");
+      setTimeout(function () { toast.classList.add("show"); }, 10);
+      setTimeout(function () { toast.classList.remove("show"); }, 3500);
+    }
+  </script>
+</body>
+
+</html>
+

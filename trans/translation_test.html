@@ -1,0 +1,914 @@
+<!doctype html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ADD Group — Translation Tester</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                --bg: #0f0f11;
+                --surface: #17171a;
+                --border: #2a2a2f;
+                --accent: #4fffb0;
+                --accent-dim: rgba(79, 255, 176, 0.12);
+                --accent-glow: rgba(79, 255, 176, 0.25);
+                --text: #e8e8ec;
+                --muted: #6b6b78;
+                --danger: #ff5f57;
+                --warn: #ffbd2e;
+                --mono: "DM Mono", monospace;
+                --sans: "Be Vietnam Pro", sans-serif;
+                --kr: "Noto Sans KR", sans-serif;
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background: var(--bg);
+                color: var(--text);
+                font-family: var(--sans);
+                min-height: 100vh;
+                padding: 40px 24px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            /* Subtle grid bg */
+            body::before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                background-image:
+                    linear-gradient(var(--border) 1px, transparent 1px),
+                    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+                background-size: 40px 40px;
+                opacity: 0.3;
+                pointer-events: none;
+                z-index: 0;
+            }
+
+            .wrapper {
+                position: relative;
+                z-index: 1;
+                width: 100%;
+                max-width: 780px;
+                display: flex;
+                flex-direction: column;
+                gap: 24px;
+            }
+
+            /* Header */
+            header {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 16px;
+                padding-bottom: 20px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .logo {
+                font-family: var(--mono);
+                font-size: 11px;
+                font-weight: 500;
+                color: var(--accent);
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                line-height: 1.4;
+            }
+            .logo span {
+                color: var(--muted);
+            }
+
+            h1 {
+                font-size: 22px;
+                font-weight: 600;
+                letter-spacing: -0.02em;
+                line-height: 1.3;
+            }
+            h1 em {
+                font-style: normal;
+                color: var(--accent);
+            }
+
+            /* Card */
+            .card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .card-title {
+                font-family: var(--mono);
+                font-size: 10px;
+                font-weight: 500;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                color: var(--muted);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .card-title::before {
+                content: "";
+                display: inline-block;
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: var(--accent);
+            }
+
+            label {
+                font-size: 12px;
+                font-weight: 500;
+                color: var(--muted);
+                letter-spacing: 0.04em;
+                display: block;
+                margin-bottom: 6px;
+            }
+
+            input[type="text"],
+            input[type="password"],
+            textarea {
+                width: 100%;
+                background: var(--bg);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                color: var(--text);
+                font-family: var(--mono);
+                font-size: 13px;
+                padding: 10px 14px;
+                outline: none;
+                transition:
+                    border-color 0.2s,
+                    box-shadow 0.2s;
+                resize: vertical;
+            }
+            input[type="text"]:focus,
+            input[type="password"]:focus,
+            textarea:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px var(--accent-dim);
+            }
+            input[type="password"] {
+                letter-spacing: 0.08em;
+            }
+
+            textarea {
+                min-height: 100px;
+                line-height: 1.6;
+            }
+
+            .row {
+                display: flex;
+                gap: 12px;
+            }
+            .col {
+                flex: 1;
+            }
+
+            /* Simulate user block */
+            .user-row {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+            }
+            .user-row input {
+                flex: 1;
+            }
+            .tag {
+                font-family: var(--mono);
+                font-size: 10px;
+                color: var(--accent);
+                background: var(--accent-dim);
+                border: 1px solid rgba(79, 255, 176, 0.2);
+                padding: 3px 8px;
+                border-radius: 4px;
+                white-space: nowrap;
+            }
+
+            /* Buttons */
+            .btn {
+                padding: 10px 22px;
+                border-radius: 8px;
+                font-family: var(--sans);
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                border: none;
+                transition: all 0.2s;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .btn-primary {
+                background: var(--accent);
+                color: #0a1a12;
+            }
+            .btn-primary:hover {
+                background: #7bffca;
+                box-shadow: 0 0 16px var(--accent-glow);
+                transform: translateY(-1px);
+            }
+            .btn-primary:active {
+                transform: translateY(0);
+            }
+            .btn-primary:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+                transform: none;
+                box-shadow: none;
+            }
+            .btn-ghost {
+                background: transparent;
+                color: var(--muted);
+                border: 1px solid var(--border);
+            }
+            .btn-ghost:hover {
+                border-color: var(--muted);
+                color: var(--text);
+            }
+
+            .btn-row {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                justify-content: flex-end;
+            }
+
+            /* Output */
+            .output-block {
+                display: none;
+                flex-direction: column;
+                gap: 16px;
+            }
+            .output-block.visible {
+                display: flex;
+            }
+
+            .output-label {
+                font-family: var(--mono);
+                font-size: 10px;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: var(--muted);
+                margin-bottom: 4px;
+            }
+
+            .output-box {
+                background: var(--bg);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 14px 16px;
+                font-size: 14px;
+                line-height: 1.7;
+                min-height: 56px;
+                word-break: break-word;
+            }
+            .output-box.korean {
+                font-family: var(--kr);
+                font-size: 15px;
+            }
+            .output-box.final-result {
+                border-color: rgba(79, 255, 176, 0.3);
+                background: rgba(79, 255, 176, 0.04);
+                font-family: var(--kr);
+                font-size: 15px;
+            }
+
+            .highlight-name {
+                color: var(--accent);
+                font-weight: 600;
+            }
+
+            /* Status */
+            .status-bar {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-family: var(--mono);
+                font-size: 11px;
+                color: var(--muted);
+                padding: 8px 0;
+            }
+            .dot {
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                background: var(--muted);
+                flex-shrink: 0;
+            }
+            .dot.loading {
+                background: var(--warn);
+                animation: pulse 1s infinite;
+            }
+            .dot.ok {
+                background: var(--accent);
+            }
+            .dot.err {
+                background: var(--danger);
+            }
+
+            @keyframes pulse {
+                0%,
+                100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.3;
+                }
+            }
+
+            /* Divider */
+            .divider {
+                height: 1px;
+                background: var(--border);
+                width: 100%;
+            }
+
+            /* History */
+            .history-item {
+                background: var(--bg);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 12px 14px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                font-size: 13px;
+                animation: slideIn 0.3s ease;
+            }
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(8px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            .history-item .h-label {
+                font-family: var(--mono);
+                font-size: 10px;
+                color: var(--muted);
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+            }
+            .history-item .h-original {
+                color: var(--muted);
+                font-size: 12px;
+            }
+            .history-item .h-result {
+                font-family: var(--kr);
+                color: var(--text);
+                font-size: 14px;
+            }
+
+            .empty-history {
+                font-family: var(--mono);
+                font-size: 12px;
+                color: var(--muted);
+                text-align: center;
+                padding: 20px 0;
+            }
+
+            /* Code block */
+            .code-section {
+                position: relative;
+            }
+            .code-toggle {
+                font-family: var(--mono);
+                font-size: 11px;
+                color: var(--muted);
+                cursor: pointer;
+                background: none;
+                border: none;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                transition: color 0.2s;
+            }
+            .code-toggle:hover {
+                color: var(--text);
+            }
+            .code-toggle svg {
+                transition: transform 0.2s;
+            }
+            .code-toggle.open svg {
+                transform: rotate(90deg);
+            }
+
+            pre {
+                display: none;
+                background: var(--bg);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 16px;
+                overflow-x: auto;
+                font-family: var(--mono);
+                font-size: 12px;
+                line-height: 1.7;
+                color: #a0a0b0;
+                margin-top: 10px;
+            }
+            pre.visible {
+                display: block;
+            }
+            .kw {
+                color: #ff7f7f;
+            }
+            .fn {
+                color: var(--accent);
+            }
+            .str {
+                color: #ffbd5e;
+            }
+            .cm {
+                color: var(--muted);
+                font-style: italic;
+            }
+
+            footer {
+                font-family: var(--mono);
+                font-size: 10px;
+                color: var(--muted);
+                text-align: center;
+                padding-top: 8px;
+                letter-spacing: 0.08em;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrapper">
+            <header>
+                <div>
+                    <div class="logo">
+                        ADD Group <span>/ Translation Bot</span>
+                    </div>
+                    <h1 style="margin-top: 8px">Vi → Ko <em>Tester</em></h1>
+                </div>
+                <div style="text-align: right">
+                    <div class="logo" style="color: var(--muted)">
+                        VPA · KPA · ADC
+                    </div>
+                    <div
+                        style="
+                            font-size: 12px;
+                            color: var(--muted);
+                            margin-top: 4px;
+                        "
+                    >
+                        Kiến trúc & Xây dựng
+                    </div>
+                </div>
+            </header>
+
+            <!-- Config -->
+            <div class="card">
+                <div class="card-title">Cấu hình</div>
+                <div>
+                    <label>OpenAI API Key</label>
+                    <input
+                        type="password"
+                        id="apiKey"
+                        placeholder="sk-proj-..."
+                        autocomplete="off"
+                    />
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Model</label>
+                        <input type="text" id="model" value="gpt-4o-mini" />
+                    </div>
+                    <div class="col">
+                        <label>Temperature</label>
+                        <input type="text" id="temperature" value="0.3" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input -->
+            <div class="card">
+                <div class="card-title">Tin nhắn mô phỏng</div>
+                <div>
+                    <label>Tên người dùng (displayName)</label>
+                    <div class="user-row">
+                        <input
+                            type="text"
+                            id="userName"
+                            placeholder="Nguyen Van A"
+                            value="Nguyen Van A"
+                        />
+                        <span class="tag">@vh (AI)</span>
+                    </div>
+                </div>
+                <div>
+                    <label>Nội dung tin nhắn (event.message.text)</label>
+                    <textarea
+                        id="messageText"
+                        placeholder="@vh (AI) Bản vẽ tầng 3 cần được cập nhật theo tiến độ thi công..."
+                    ></textarea>
+                </div>
+
+                <!-- Quick samples -->
+                <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                    <span
+                        style="
+                            font-size: 11px;
+                            color: var(--muted);
+                            align-self: center;
+                        "
+                        >Thử nhanh:</span
+                    >
+                    <button
+                        class="btn btn-ghost"
+                        style="padding: 4px 12px; font-size: 11px"
+                        onclick="sample(0)"
+                    >
+                        Bản vẽ
+                    </button>
+                    <button
+                        class="btn btn-ghost"
+                        style="padding: 4px 12px; font-size: 11px"
+                        onclick="sample(1)"
+                    >
+                        Tiến độ
+                    </button>
+                    <button
+                        class="btn btn-ghost"
+                        style="padding: 4px 12px; font-size: 11px"
+                        onclick="sample(2)"
+                    >
+                        Có URL
+                    </button>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-ghost" onclick="clearAll()">
+                        Xóa
+                    </button>
+                    <button
+                        class="btn btn-primary"
+                        id="runBtn"
+                        onclick="runTest()"
+                    >
+                        <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 16 16"
+                            fill="currentColor"
+                        >
+                            <path d="M3 2.5l10 5.5-10 5.5V2.5z" />
+                        </svg>
+                        Chạy dịch
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="status-bar" id="statusBar">
+                <div class="dot" id="statusDot"></div>
+                <span id="statusText">Sẵn sàng</span>
+            </div>
+
+            <!-- Output -->
+            <div class="card output-block" id="outputBlock">
+                <div class="card-title">Kết quả xử lý</div>
+                <div>
+                    <div class="output-label">
+                        ① Sau khi loại bỏ @vh (AI) và URL
+                    </div>
+                    <div class="output-box" id="outCleaned"></div>
+                </div>
+                <div>
+                    <div class="output-label">② Bản dịch tiếng Hàn</div>
+                    <div class="output-box korean" id="outTranslated"></div>
+                </div>
+                <div class="divider"></div>
+                <div>
+                    <div class="output-label">
+                        ③ Output cuối cùng (return value)
+                    </div>
+                    <div class="output-box final-result" id="outFinal"></div>
+                </div>
+            </div>
+
+            <!-- Refactored code -->
+            <div class="card code-section">
+                <div
+                    style="
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                    "
+                >
+                    <div class="card-title">Code đã refactor</div>
+                    <button
+                        class="code-toggle"
+                        id="codeToggle"
+                        onclick="toggleCode()"
+                    >
+                        <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 12 12"
+                            fill="currentColor"
+                        >
+                            <path d="M4 2l4 4-4 4" />
+                        </svg>
+                        Xem code
+                    </button>
+                </div>
+                <pre
+                    id="codeBlock"
+                ><span class="cm">// ✅ Đã fix: API key không hardcode, dùng tham số truyền vào</span>
+<span class="cm">// ✅ Tách rõ regex thành constant</span>
+<span class="cm">// ✅ Thêm error handling chi tiết hơn</span>
+
+<span class="kw">const</span> <span class="fn">URL_REGEX</span> = <span class="str">/https?:\/\/\S+/g</span>; <span class="cm">// Chỉ bắt URL thực (http/https)</span>
+<span class="kw">const</span> <span class="fn">BOT_MENTION</span> = <span class="str">'@vh (AI)'</span>;
+
+<span class="kw">function</span> <span class="fn">onMessage</span>(event) {
+  <span class="kw">const</span> raw = event.message.text;
+
+  <span class="cm">// Bước 1: Làm sạch tin nhắn</span>
+  <span class="kw">const</span> cleaned = raw
+    .replace(BOT_MENTION, <span class="str">''</span>)
+    .replace(URL_REGEX, <span class="str">'&lt;위 링크 참조&gt;'</span>)
+    .trim();
+
+  <span class="cm">// Bước 2: Dịch</span>
+  <span class="kw">const</span> translated = <span class="fn">translateWithGPT</span>(cleaned);
+
+  <span class="cm">// Bước 3: Format output</span>
+  <span class="kw">return</span> {
+    text: <span class="str">`${event.user.displayName} said: ${translated}`</span>
+  };
+}
+
+<span class="kw">function</span> <span class="fn">translateWithGPT</span>(text, apiKey) { <span class="cm">// ✅ apiKey là tham số</span>
+  <span class="kw">const</span> url = <span class="str">"https://api.openai.com/v1/chat/completions"</span>;
+
+  <span class="kw">const</span> payload = {
+    model: <span class="str">"gpt-4o-mini"</span>,
+    temperature: 0.3,
+    messages: [
+      {
+        role: <span class="str">"system"</span>,
+        content: <span class="str">`Bạn là dịch giả chuyên ngành kiến trúc, xây dựng.
+Công ty: ADD Group (VPA - Plan ADD Việt Nam, KPA - Plan ADD Hàn Quốc, ADC - ADD Construction).
+Dịch sang tiếng Hàn, chỉ trả về bản dịch, không kèm bản gốc.`</span>
+      },
+      {
+        role: <span class="str">"user"</span>,
+        content: <span class="str">`Dịch sang tiếng Hàn:\n\n"${text}"`</span>
+      }
+    ]
+  };
+
+  <span class="kw">const</span> options = {
+    method: <span class="str">"post"</span>,
+    contentType: <span class="str">"application/json"</span>,
+    headers: { <span class="str">"Authorization"</span>: <span class="str">`Bearer ${apiKey}`</span> },
+    payload: JSON.<span class="fn">stringify</span>(payload),
+    muteHttpExceptions: <span class="kw">true</span>
+  };
+
+  <span class="kw">const</span> res = UrlFetchApp.<span class="fn">fetch</span>(url, options);
+  <span class="kw">const</span> json = JSON.<span class="fn">parse</span>(res.<span class="fn">getContentText</span>());
+
+  <span class="kw">if</span> (json.error) <span class="kw">throw new</span> Error(json.error.message);
+  <span class="kw">return</span> json.choices?.[0]?.message?.content?.<span class="fn">trim</span>() ?? <span class="str">"번역 오류!"</span>;
+}</pre>
+            </div>
+
+            <!-- History -->
+            <div class="card">
+                <div
+                    style="
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                    "
+                >
+                    <div class="card-title">Lịch sử test</div>
+                    <button
+                        class="btn btn-ghost"
+                        style="padding: 4px 12px; font-size: 11px"
+                        onclick="clearHistory()"
+                    >
+                        Xóa lịch sử
+                    </button>
+                </div>
+                <div id="historyList">
+                    <div class="empty-history">Chưa có kết quả nào</div>
+                </div>
+            </div>
+
+            <footer>ADD GROUP TRANSLATION BOT · TEST INTERFACE · 2025</footer>
+        </div>
+
+        <script>
+            const URL_REGEX = /https?:\/\/\S+/g;
+            const BOT_MENTION = "@vh (AI)";
+            const history = [];
+
+            const SAMPLES = [
+                "@vh (AI) Bản vẽ kết cấu tầng 3 cần cập nhật theo phê duyệt của KPA. Vui lòng kiểm tra lại chi tiết móng.",
+                "@vh (AI) Tiến độ thi công hiện tại của ADC đang chậm 2 tuần so với kế hoạch. Cần họp khẩn với bên VPA.",
+                "@vh (AI) Tài liệu hợp đồng đã được upload lên https://drive.google.com/file/abc123, vui lòng xem xét và phản hồi trước thứ 6.",
+            ];
+
+            function sample(i) {
+                document.getElementById("messageText").value = SAMPLES[i];
+            }
+
+            function setStatus(type, msg) {
+                const dot = document.getElementById("statusDot");
+                dot.className = "dot " + type;
+                document.getElementById("statusText").textContent = msg;
+            }
+
+            function toggleCode() {
+                const pre = document.getElementById("codeBlock");
+                const btn = document.getElementById("codeToggle");
+                pre.classList.toggle("visible");
+                btn.classList.toggle("open");
+                btn.querySelector("span") && null;
+                btn.childNodes[1] &&
+                    (btn.childNodes[1].textContent = pre.classList.contains(
+                        "visible",
+                    )
+                        ? " Ẩn code"
+                        : " Xem code");
+                // fix text
+                const texts = btn.querySelectorAll ? btn.innerHTML : "";
+                btn.innerHTML = btn.innerHTML.replace(
+                    pre.classList.contains("visible") ? "Xem code" : "Ẩn code",
+                    pre.classList.contains("visible") ? "Ẩn code" : "Xem code",
+                );
+            }
+
+            async function runTest() {
+                const apiKey = document.getElementById("apiKey").value.trim();
+                const model =
+                    document.getElementById("model").value.trim() ||
+                    "gpt-4o-mini";
+                const temp =
+                    parseFloat(document.getElementById("temperature").value) ||
+                    0.3;
+                const userName =
+                    document.getElementById("userName").value.trim() || "User";
+                const rawText = document
+                    .getElementById("messageText")
+                    .value.trim();
+
+                if (!apiKey) {
+                    setStatus("err", "Vui lòng nhập API Key");
+                    return;
+                }
+                if (!rawText) {
+                    setStatus("err", "Vui lòng nhập nội dung tin nhắn");
+                    return;
+                }
+
+                const btn = document.getElementById("runBtn");
+                btn.disabled = true;
+                setStatus("loading", "Đang gọi OpenAI API...");
+
+                // Step 1: clean
+                const cleaned = rawText
+                    .replace(BOT_MENTION, "")
+                    .replace(URL_REGEX, "<위 링크 참조>")
+                    .trim();
+
+                document.getElementById("outCleaned").textContent = cleaned;
+                document.getElementById("outputBlock").classList.add("visible");
+
+                try {
+                    // Step 2: translate
+                    const payload = {
+                        model,
+                        temperature: temp,
+                        messages: [
+                            {
+                                role: "system",
+                                content: `Bạn là dịch giả chuyên ngành kiến trúc, xây dựng. Công ty: ADD Group (VPA - Plan ADD Việt Nam, KPA - Plan ADD Hàn Quốc, ADC - ADD Construction). Dịch sang tiếng Hàn, chỉ trả về bản dịch, không kèm bản gốc.`,
+                            },
+                            {
+                                role: "user",
+                                content: `Dịch sang tiếng Hàn:\n\n"${cleaned}"`,
+                            },
+                        ],
+                    };
+
+                    const res = await fetch(
+                        "https://api.openai.com/v1/chat/completions",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: "Bearer " + apiKey,
+                            },
+                            body: JSON.stringify(payload),
+                        },
+                    );
+
+                    const json = await res.json();
+                    if (json.error) throw new Error(json.error.message);
+
+                    const translated =
+                        json.choices?.[0]?.message?.content?.trim() ??
+                        "번역 오류!";
+                    const finalText = `${userName} said: ${translated}`;
+
+                    document.getElementById("outTranslated").textContent =
+                        translated;
+                    document.getElementById("outFinal").innerHTML =
+                        `<span class="highlight-name">${userName}</span> said: ${translated}`;
+
+                    setStatus(
+                        "ok",
+                        `Dịch thành công · ${new Date().toLocaleTimeString("vi-VN")}`,
+                    );
+
+                    // Add to history
+                    history.unshift({
+                        raw: rawText,
+                        cleaned,
+                        translated,
+                        final: finalText,
+                        time: new Date(),
+                    });
+                    renderHistory();
+                } catch (err) {
+                    setStatus("err", "Lỗi: " + err.message);
+                    document.getElementById("outTranslated").textContent =
+                        "⚠ " + err.message;
+                    document.getElementById("outFinal").textContent =
+                        "번역 오류!";
+                } finally {
+                    btn.disabled = false;
+                }
+            }
+
+            function renderHistory() {
+                const el = document.getElementById("historyList");
+                if (history.length === 0) {
+                    el.innerHTML =
+                        '<div class="empty-history">Chưa có kết quả nào</div>';
+                    return;
+                }
+                el.innerHTML = history
+                    .slice(0, 10)
+                    .map(
+                        (h, i) => `
+      <div class="history-item">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="h-label">#${history.length - i} · ${h.time.toLocaleTimeString("vi-VN")}</div>
+        </div>
+        <div class="h-original">${escHtml(h.cleaned)}</div>
+        <div class="h-result">${escHtml(h.translated)}</div>
+      </div>
+    `,
+                    )
+                    .join("");
+            }
+
+            function escHtml(s) {
+                return s
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;");
+            }
+
+            function clearAll() {
+                document.getElementById("messageText").value = "";
+                document
+                    .getElementById("outputBlock")
+                    .classList.remove("visible");
+                setStatus("", "Sẵn sàng");
+            }
+
+            function clearHistory() {
+                history.length = 0;
+                renderHistory();
+            }
+        </script>
+    </body>
+</html>
