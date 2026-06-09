@@ -180,39 +180,73 @@ function parseISOToVNDateTime(isoString) {
 
 // === 1.2 ===
 function sendtoGemini(prompt) {
-  var API_KEY = "AIzaSyD_UNa9G1B-9v2AMRzQFihQqE0qoEBhw5M";
+  var API_KEY = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
 
   var payload = {
     contents: [
       {
         parts: [{ text: prompt }]
       }
-    ]
+    ],
+    systemInstruction: {
+      parts: [
+        {
+          text: "Bạn là trợ lý đắc lực giúp trích xuất và chuẩn hóa thông tin từ tin nhắn. Bạn phải tuân thủ nghiêm ngặt định dạng đầu ra được yêu cầu trong prompt. Tuyệt đối KHÔNG trả về mã nguồn (như Python, JavaScript, v.v.), KHÔNG giải thích, và KHÔNG bao bọc kết quả trong các khối mã markdown (```)."
+        }
+      ]
+    }
   };
 
   var options = {
     method: "post",
     contentType: "application/json",
-    payload: JSON.stringify(payload)
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
   };
 
-  try {
-    var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
-    // var url = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
-    // var url = "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=" + API_KEY;
-    // var url = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=" + API_KEY;
+  var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
 
-    var response = UrlFetchApp.fetch(url, options);
-    var json = JSON.parse(response.getContentText());
+  var maxRetries = 3;
+  var baseDelay = 1000; // 1 second
 
-    if (json.candidates && json.candidates.length > 0) {
-      return json.candidates[0].content.parts[0].text;
-    } else {
-      return "Xin lỗi, tôi không thể lấy phản hồi từ AI.";
+  for (var attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      var response = UrlFetchApp.fetch(url, options);
+      var responseCode = response.getResponseCode();
+      var responseText = response.getContentText();
+
+      if (responseCode === 200) {
+        var json = JSON.parse(responseText);
+        if (json.candidates && json.candidates.length > 0) {
+          return json.candidates[0].content.parts[0].text;
+        } else {
+          return "Xin lỗi, tôi không thể lấy phản hồi từ AI.";
+        }
+      }
+
+      // Handle retryable status codes (429, 500, 503, 504)
+      if (responseCode === 429 || responseCode === 500 || responseCode === 503 || responseCode === 504) {
+        if (attempt === maxRetries) {
+          Logger.log("API error code " + responseCode + " after " + maxRetries + " retries. Response: " + responseText);
+          return "Có lỗi xảy ra: API trả về mã lỗi " + responseCode + " sau khi thử lại.";
+        }
+        var delay = baseDelay * Math.pow(2, attempt) + Math.random() * 1000;
+        Logger.log("API returned " + responseCode + ". Retrying attempt " + (attempt + 1) + "/" + maxRetries + " in " + Math.round(delay) + "ms...");
+        Utilities.sleep(delay);
+      } else {
+        // Non-retryable error (e.g. 400, 403, etc.)
+        Logger.log("API non-retryable error " + responseCode + ". Response: " + responseText);
+        return "Có lỗi xảy ra: " + responseCode + " - " + responseText;
+      }
+    } catch (e) {
+      if (attempt === maxRetries) {
+        Logger.log("Network error after " + maxRetries + " retries: " + e.toString());
+        return "Có lỗi xảy ra: " + e.toString();
+      }
+      var delay = baseDelay * Math.pow(2, attempt) + Math.random() * 1000;
+      Logger.log("Fetch failed with error: " + e.toString() + ". Retrying attempt " + (attempt + 1) + "/" + maxRetries + " in " + Math.round(delay) + "ms...");
+      Utilities.sleep(delay);
     }
-  } catch (e) {
-    Logger.log("Error: " + e.toString());
-    return "Có lỗi xảy ra: " + e.toString();
   }
 }
 

@@ -469,10 +469,10 @@ function isSamePerson(geminiName, sheetFullName) {
   // Rule cứng: Chữ cuối của tên do Gemini trả về phải khớp với chữ cuối của tên trong sheet
   var nWords = n.split(/\s+/);
   var fWords = f.split(/\s+/);
-  
+
   var nLast = removeVietnameseTones(nWords[nWords.length - 1]);
   var fLast = removeVietnameseTones(fWords[fWords.length - 1]);
-  
+
   if (nLast !== fLast) return false;
 
   // Nếu match ngay thì trả về true

@@ -6,8 +6,7 @@ const CHAT_WEBHOOK_URL = 'https://chat.googleapis.com/v1/spaces/AAQA0ZZUjNs/mess
 const BOSS_CALENDAR_ID = '800@add-group.net'; // 'primary' nếu là lịch của tài khoản chạy script, hoặc điền email lịch của Boss nếu được chia sẻ quyền
 
 // Cấu hình ID người dùng hoặc tên hiển thị để tag/mention trên Google Chat
-const VH_USER_ID = 'vh(AI)'; // Thay bằng ID Google Chat dạng 'users/123456789012345678901' hoặc dùng chữ 'vh' để hiển thị text thông thường
-const BOSS_USER_ID = '손민창 (Son, MinChang)'; // Thay bằng ID Google Chat dạng 'users/987654321098765432109' hoặc dùng chữ '손민창 (Son, MinChang)' để hiển thị text thông thường
+const BOSS_USER_ID = 'ADD IT'; // Thay bằng ID Google Chat dạng 'users/987654321098765432109' hoặc dùng chữ '손민창 (Son, MinChang)' để hiển thị text thông thường
 const CALENDAR_NAME = '200'; // Tên hiển thị của lịch / phòng ban trong thông báo (Ví dụ: '200')
 
 // Cấu hình API Key của Gemini (từ Google AI Studio)
@@ -140,9 +139,63 @@ function onCardClick(event) {
     return openTicketDialog(event);
   } else if (actionName === 'handleTicketSubmit') {
     return handleTicketSubmit(event);
+  } else if (actionName === 'showReturnFlightForm') {
+    return showReturnFlightForm(event);
+  } else if (actionName === 'closeDialog') {
+    return closeDialog(event);
   }
   // Fallback: không nhận ra action -> trả về card mặc định
   return createOpenDialogCard();
+}
+
+function showReturnFlightForm(event) {
+  Logger.log("showReturnFlightForm gọi: " + JSON.stringify(event));
+  let prefilledData = null;
+  let parameters = null;
+
+  if (event.commonEventObject && event.commonEventObject.parameters) {
+    parameters = event.commonEventObject.parameters;
+  }
+
+  if (parameters && parameters.prefilledData) {
+    try {
+      prefilledData = typeof parameters.prefilledData === 'string'
+        ? JSON.parse(parameters.prefilledData)
+        : parameters.prefilledData;
+    } catch (e) {
+      Logger.log("Lỗi parse prefilledData: " + e.toString());
+    }
+  }
+
+  const cardBody = buildTicketCardBody(prefilledData);
+
+  return {
+    "renderActions": {
+      "action": {
+        "navigations": [
+          {
+            "updateCard": cardBody
+          }
+        ]
+      }
+    }
+  };
+}
+
+function closeDialog(event) {
+  return {
+    "renderActions": {
+      "action": {
+        "navigations": [
+          {
+            "endNavigation": {
+              "action": "CLOSE_DIALOG"
+            }
+          }
+        ]
+      }
+    }
+  };
 }
 
 /**
@@ -152,7 +205,7 @@ function onAddToSpace(event) {
   Logger.log("App được thêm vào space: " + JSON.stringify(event));
   // Google Workspace Add-on: tin nhắn chào đơn giản dùng text (Add-on hỗ trợ text trong onAddToSpace)
   return {
-    "text": "✈️ Cảm ơn bạn đã thêm *Air Ticket* vào không gian! Hãy tag @Air Ticket để đăng ký vé máy bay."
+    "text": "✈️ Cảm ơn bạn đã thêm *Air Ticket* vào không gian! Hãy sử dụng lệnh */ticket* để đăng ký vé máy bay."
   };
 }
 
@@ -206,207 +259,15 @@ function onAppCommand(event) {
   return { "text": "Lệnh không được nhận diện." };
 }
 
-/**
- * Helper: Kiểm tra sự kiện có phải đến từ Workspace Add-on không
- */
-function isAddOnEvent(event) {
-  if (!event) return true; // Mặc định là Add-on
-  return !!(event.hostApp === 'chat' || event.chat || (event.commonEventObject && !event.from && !event.to));
-}
 
 /**
  * Mở dialog form trực tiếp - dùng cho slash command
  * Slash command với "Opens a dialog: true" → trả về actionResponse DIALOG
  */
 function openTicketDialogDirect(prefilledValues, event) {
-  const values = prefilledValues || {};
-  const isAddOn = isAddOnEvent(event);
-
-  if (isAddOn) {
-    return {
-      "actionResponse": {
-        "type": "DIALOG",
-        "dialogAction": {
-          "action": {
-            "navigations": [
-              {
-                "pushCard": {
-                  "header": {
-                    "title": "200 AI - Air Ticket",
-                    "subtitle": "✈️ Đăng ký Vé Máy Bay"
-                  },
-                  "sections": [
-                    {
-                      "header": "Thông tin hành trình",
-                      "widgets": [
-                        {
-                          "textInput": {
-                            "label": "Mã vé (Ví dụ: VN213)",
-                            "type": "SINGLE_LINE",
-                            "name": "ticketCode",
-                            "value": values.ticketCode || ""
-                          }
-                        },
-                        {
-                          "textInput": {
-                            "label": "Điểm đi (Ví dụ: HAN)",
-                            "type": "SINGLE_LINE",
-                            "name": "from",
-                            "value": values.from || ""
-                          }
-                        },
-                        {
-                          "textInput": {
-                            "label": "Điểm đến (Ví dụ: SGN)",
-                            "type": "SINGLE_LINE",
-                            "name": "to",
-                            "value": values.to || ""
-                          }
-                        },
-                        {
-                          "textInput": {
-                            "label": "Ngày bay (Ví dụ: 21/05/2026)",
-                            "type": "SINGLE_LINE",
-                            "name": "date",
-                            "value": values.date || ""
-                          }
-                        },
-                        {
-                          "textInput": {
-                            "label": "Giờ bay (Ví dụ: 13:00)",
-                            "type": "SINGLE_LINE",
-                            "name": "time",
-                            "value": values.time || ""
-                          }
-                        },
-                        {
-                          "textInput": {
-                            "label": "Ghi chú (nếu có)",
-                            "type": "SINGLE_LINE",
-                            "name": "note",
-                            "value": values.note || ""
-                          }
-                        },
-                        {
-                          "textParagraph": {
-                            "text": "<i>Hệ thống sẽ tự động tạo lịch Google Calendar cho Boss và thông báo vào nhóm chat.</i>"
-                          }
-                        },
-                        {
-                          "buttonList": {
-                            "buttons": [
-                              {
-                                "text": "✅ Submit",
-                                "onClick": {
-                                  "action": {
-                                    "function": "handleTicketSubmit"
-                                  }
-                                }
-                              }
-                            ]
-                          }
-                        }
-                      ]
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      }
-    };
-  } else {
-    return {
-      "actionResponse": {
-        "type": "DIALOG",
-        "dialogAction": {
-          "dialog": {
-            "body": {
-              "header": {
-                "title": "200 AI - Air Ticket",
-                "subtitle": "✈️ Đăng ký Vé Máy Bay"
-              },
-              "sections": [
-                {
-                  "header": "Thông tin hành trình",
-                  "widgets": [
-                    {
-                      "textInput": {
-                        "label": "Mã vé (Ví dụ: VN213)",
-                        "type": "SINGLE_LINE",
-                        "name": "ticketCode",
-                        "value": values.ticketCode || ""
-                      }
-                    },
-                    {
-                      "textInput": {
-                        "label": "Điểm đi (Ví dụ: HAN)",
-                        "type": "SINGLE_LINE",
-                        "name": "from",
-                        "value": values.from || ""
-                      }
-                    },
-                    {
-                      "textInput": {
-                        "label": "Điểm đến (Ví dụ: SGN)",
-                        "type": "SINGLE_LINE",
-                        "name": "to",
-                        "value": values.to || ""
-                      }
-                    },
-                    {
-                      "textInput": {
-                        "label": "Ngày bay (Ví dụ: 21/05/2026)",
-                        "type": "SINGLE_LINE",
-                        "name": "date",
-                        "value": values.date || ""
-                      }
-                    },
-                    {
-                      "textInput": {
-                        "label": "Giờ bay (Ví dụ: 13:00)",
-                        "type": "SINGLE_LINE",
-                        "name": "time",
-                        "value": values.time || ""
-                      }
-                    },
-                    {
-                      "textInput": {
-                        "label": "Ghi chú (nếu có)",
-                        "type": "SINGLE_LINE",
-                        "name": "note",
-                        "value": values.note || ""
-                      }
-                    },
-                    {
-                      "textParagraph": {
-                        "text": "<i>Hệ thống sẽ tự động tạo lịch Google Calendar cho Boss và thông báo vào nhóm chat.</i>"
-                      }
-                    },
-                    {
-                      "buttonList": {
-                        "buttons": [
-                          {
-                            "text": "✅ Submit",
-                            "onClick": {
-                              "action": {
-                                "function": "handleTicketSubmit"
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        }
-      }
-    };
-  }
+  Logger.log("openTicketDialogDirect gọi");
+  // Truyền isAppCommand=true để dùng renderActions format
+  return createTicketDialog(prefilledValues, true);
 }
 
 
@@ -457,7 +318,7 @@ function getActionMethodName(event) {
 }
 
 /**
- * Helper: Tránh ký tự đặc biệt trong RegExp
+ * Helper: Trích dẫn ký tự đặc biệt trong RegExp
  */
 function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -527,6 +388,7 @@ Nhiệm vụ của bạn là phân tích đoạn tin nhắn sau đây và trích
   "ticketCode": "Mã chuyến bay hoặc mã vé (Ví dụ: VN213, VJ123, nếu không rõ để trống)",
   "date": "Ngày khởi hành (Định dạng YYYY-MM-DD hoặc DD/MM/YYYY, nếu không có hãy lấy ngày hiện tại)",
   "time": "Giờ khởi hành (Định dạng HH:mm, nếu không rõ để trống)",
+  "arrivalTime": "Giờ hạ cánh (Định dạng HH:mm, nếu không rõ để trống)",
   "note": "Ghi chú thêm nếu có (Ví dụ: đổi vé, hủy vé, khứ hồi...)"
 }
 
@@ -573,61 +435,88 @@ Chỉ trả về chuỗi JSON chính xác theo cấu trúc trên, tuyệt đối
 }
 
 /**
- * Trình điều phối xử lý tin nhắn Chat: Nhận diện AI hoặc hiển thị nút mở Dialog Form
+ * Trình điều phối xử lý tin nhắn Chat.
+ *
+ * Flow:
+ *  1. Nếu message có slashCommand → delegate sang openTicketDialogDirect (fallback path)
+ *  2. Nếu bot KHÔNG được mention → return null (bỏ qua, Google Chat sẽ không hiện gì)
+ *  3. Nếu bot được mention + text chứa "/ticket" → mở dialog form
+ *  4. Còn lại (mention bot nhưng nội dung khác) → hướng dẫn dùng /ticket
  */
 function handleChatMessageEvent(event) {
-  try {
-    const message = (event.chat && event.chat.messagePayload && event.chat.messagePayload.message)
-      || event.message
-      || null;
-    const cleanText = getCleanMessageText(message);
-    Logger.log("cleanText sau khi lọc: '" + cleanText + "'");
+  const message = event.message
+    || (event.chat && event.chat.messagePayload && event.chat.messagePayload.message)
+    || null;
 
-    // ================================================================
-    // QUAN TRỌNG: Workspace Add-on onMessage CHỈ được trả về { text }
-    // Không thể trả về card hay dialog từ onMessage.
-    // Để mở form → dùng slash command /ticket (đăng ký trong cấu hình Add-on)
-    // ================================================================
+  if (!message) {
+    Logger.log("handleChatMessageEvent: Không tìm thấy message object.");
+    return { "text": "✈️ Hãy dùng lệnh */ticket* để đăng ký vé máy bay." };
+  }
 
-    // Có text kèm theo + có Gemini key → thử trích xuất tự động
-    const hasGemini = API_KEY && API_KEY !== '' && API_KEY !== 'YOUR_GEMINI_API_KEY' && API_KEY !== 'YOUR_GEMMA_API_KEY';
+  // ── QUAN TRỌNG: Nếu message là slash command → im lặng, để onAppCommand xử lý ──
+  // Google Chat fire cả onMessage lẫn onAppCommand khi user gõ slash command.
+  // Nếu onMessage trả về text thì Chat sẽ render text đó và bỏ qua response của onAppCommand.
+  const hasSlashCommandAnnotation = (message.annotations || []).some(
+    ann => ann.type === 'SLASH_COMMAND'
+  );
+  if (message.slashCommand || hasSlashCommandAnnotation) {
+    Logger.log("handleChatMessageEvent: Phát hiện slash command, nhường cho onAppCommand.");
+    return {};  // Empty object = Google Chat bỏ qua, onAppCommand sẽ mở dialog
+  }
 
-    if (cleanText && hasGemini) {
-      let extractedData = null;
-      try {
-        extractedData = extractTicketWithGemini(cleanText);
-      } catch (geminiError) {
-        Logger.log("Lỗi gọi Gemini API: " + geminiError.toString());
-      }
+  const isBotMentioned = checkBotMentioned(message);
+  Logger.log("isBotMentioned: " + isBotMentioned);
 
-      if (extractedData && extractedData.from && extractedData.to) {
-        try {
-          extractedData.pdfBase64 = null;
-          processAirTicketWorkflow(extractedData);
-          return {
-            "text": `✈️ *AI đã nhận diện hành trình và tự động đặt lịch thành công!*\n` +
-              `• *Mã vé:* ${extractedData.ticketCode || 'Chưa rõ'}\n` +
-              `• *Lộ trình:* Từ ${extractedData.from} đi ${extractedData.to}\n` +
-              `• *Thời gian:* ${extractedData.time || 'Chưa rõ'} ngày ${extractedData.date || 'Chưa rõ'}\n` +
-              `• *Ghi chú:* ${extractedData.note || 'Không có'}`
-          };
-        } catch (workflowError) {
-          Logger.log("Lỗi workflow: " + workflowError.toString());
-          return { "text": "⚠️ Nhận diện được vé nhưng lưu thất bại. Dùng */ticket* để nhập tay." };
-        }
+  if (!isBotMentioned) {
+    Logger.log("handleChatMessageEvent: Bot không bị mention, bỏ qua.");
+    return { "text": "✈️ Hãy dùng lệnh */ticket* để đăng ký vé máy bay." };
+  }
+
+  const cleanText = getCleanMessageText(message).toLowerCase().trim();
+  Logger.log("Clean text sau mention: [" + cleanText + "]");
+
+  // User chỉ tag @Air Ticket (cleanText rỗng) hoặc tag + text khác → hướng dẫn
+  return {
+    "text": "✈️ Xin chào! Hãy dùng lệnh */ticket* để mở form đăng ký vé máy bay."
+  };
+}
+
+/**
+ * Kiểm tra xem bot có được mention (@tag) trong tin nhắn không.
+ * Hỗ trợ cả legacy Chat App (annotations) và Workspace Add-on (message.annotations).
+ *
+ * @param {Object} message - Message object từ Google Chat event
+ * @returns {boolean}
+ */
+function checkBotMentioned(message) {
+  if (!message) return false;
+
+  // ── Cách 1: Kiểm tra qua annotations (chuẩn nhất) ──
+  const annotations = message.annotations || [];
+  for (let i = 0; i < annotations.length; i++) {
+    const ann = annotations[i];
+    // USER_MENTION với type BOT = bot được tag
+    if (ann.type === 'USER_MENTION' && ann.userMention) {
+      const user = ann.userMention.user;
+      if (user && (user.type === 'BOT' || user.isBot === true)) {
+        return true;
       }
     }
-
-    // Mọi trường hợp còn lại (chỉ tag, không có Gemini, trích xuất thất bại)
-    // → hướng dẫn dùng slash command
-    return {
-      "text": "✈️ Hãy dùng lệnh */ticket* để mở form đăng ký hoặc tag kèm theo thông tin vé (ví dụ: @Air Ticket VN213 HAN SGN 13:00 21/05/2026) để AI tự động đặt lịch."
-    };
-
-  } catch (error) {
-    Logger.log("Lỗi handleChatMessageEvent: " + error.toString());
-    return { "text": "❌ Lỗi xử lý: " + error.toString() };
   }
+
+  // ── Cách 2: Fallback - kiểm tra argumentText ──
+  // Google Chat chỉ populate argumentText khi bot bị mention trực tiếp
+  if (message.argumentText !== undefined && message.argumentText !== null) {
+    return true;
+  }
+
+  // ── Cách 3: Fallback - kiểm tra message text có chứa <users/app> không ──
+  const text = message.text || '';
+  if (/<users\/[^>]+>/.test(text)) {
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -635,7 +524,8 @@ function handleChatMessageEvent(event) {
  */
 function createOpenDialogCard(prefilledData) {
   const actionObj = {
-    "function": "openTicketDialog"
+    "function": "openTicketDialog",
+    "interaction": "OPEN_DIALOG"
   };
 
   if (prefilledData) {
@@ -647,8 +537,6 @@ function createOpenDialogCard(prefilledData) {
     ];
   }
 
-  // Google Workspace Add-on (Tiện ích bổ sung) dùng renderActions + pushCard
-  // KHÔNG dùng cardsV2 (chỉ dành cho Chat App thuần)
   const card = {
     "header": {
       "title": "200 AI - Air Ticket",
@@ -680,147 +568,226 @@ function createOpenDialogCard(prefilledData) {
   };
 
   return {
-    "renderActions": {
-      "action": {
-        "navigations": [
-          {
-            "pushCard": card
-          }
-        ]
+    "cardsV2": [
+      {
+        "cardId": "openTicketCard",
+        "card": card
       }
-    }
+    ]
   };
 }
 
 /**
  * Callback khi người dùng click vào nút "Đăng ký vé" để mở Dialog Form
  */
-function openTicketDialog(event) {
-  Logger.log("Mở Dialog Form từ Card Click: " + JSON.stringify(event));
-  let prefilledData = null;
+function buildTicketCardBody(prefilledValues) {
+  const values = prefilledValues || {};
 
-  // Trích xuất parameters từ event click card (hỗ trợ cả 2 dạng)
+  let dateMsEpoch = null;
+  if (values.date) {
+    const parsed = parseTicketDate(values.date);
+    const d = new Date(`${parsed.year}-${parsed.month}-${parsed.day}T00:00:00`);
+    if (!isNaN(d.getTime())) {
+      dateMsEpoch = d.getTime();
+    }
+  }
+
+  let timeMsEpoch = null;
+  if (values.time) {
+    const parts = values.time.split(":");
+    if (parts.length === 2) {
+      const d = new Date();
+      d.setHours(Number(parts[0]));
+      d.setMinutes(Number(parts[1]));
+      d.setSeconds(0);
+      d.setMilliseconds(0);
+      timeMsEpoch = d.getTime();
+    }
+  }
+
+  let arrivalTimeMsEpoch = null;
+  if (values.arrivalTime) {
+    const parts = values.arrivalTime.split(":");
+    if (parts.length === 2) {
+      const d = new Date();
+      d.setHours(Number(parts[0]));
+      d.setMinutes(Number(parts[1]));
+      d.setSeconds(0);
+      d.setMilliseconds(0);
+      arrivalTimeMsEpoch = d.getTime();
+    }
+  }
+
+  return {
+    "header": {
+      "title": "200 AI - Air Ticket",
+      "subtitle": "✈️ Đăng ký Vé Máy Bay"
+    },
+    "sections": [
+      {
+        "header": "Thông tin hành trình",
+        "collapsible": false,
+        "widgets": [
+          {
+            "textInput": {
+              "label": "Mã vé (Ví dụ: VN213)",
+              "type": "SINGLE_LINE",
+              "name": "ticketCode",
+              "value": values.ticketCode || ""
+            }
+          },
+          {
+            "textInput": {
+              "label": "Điểm đi (Ví dụ: HAN)",
+              "type": "SINGLE_LINE",
+              "name": "from",
+              "value": values.from || ""
+            }
+          },
+          {
+            "textInput": {
+              "label": "Điểm đến (Ví dụ: SGN)",
+              "type": "SINGLE_LINE",
+              "name": "to",
+              "value": values.to || ""
+            }
+          },
+          {
+            "dateTimePicker": {
+              "label": "Ngày bay",
+              "name": "date",
+              "type": "DATE_ONLY",
+              "valueMsEpoch": dateMsEpoch ? String(dateMsEpoch) : undefined
+            }
+          },
+          {
+            "dateTimePicker": {
+              "label": "Giờ bay (Từ)",
+              "name": "time",
+              "type": "TIME_ONLY",
+              "valueMsEpoch": timeMsEpoch ? String(timeMsEpoch) : undefined
+            }
+          },
+          {
+            "dateTimePicker": {
+              "label": "Giờ bay (Đến)",
+              "name": "arrivalTime",
+              "type": "TIME_ONLY",
+              "valueMsEpoch": arrivalTimeMsEpoch ? String(arrivalTimeMsEpoch) : undefined
+            }
+          },
+          {
+            "textInput": {
+              "label": "Link file vé (Drive/URL)",
+              "type": "SINGLE_LINE",
+              "name": "pdfUrl",
+              "value": values.pdfUrl || ""
+            }
+          },
+          {
+            "textParagraph": {
+              "text": `👉 <a href="https://drive.google.com/drive/folders/${PARENT_FOLDER_ID}"><b>Mở thư mục Google Drive để tải tệp lên</b></a>`
+            }
+          },
+          {
+            "textInput": {
+              "label": "Ghi chú (nếu có)",
+              "type": "SINGLE_LINE",
+              "name": "note",
+              "value": values.note || ""
+            }
+          },
+          {
+            "textInput": {
+              "label": "Email người tham gia (Ví dụ: abc@gmail.com, xyz@gmail.com)",
+              "type": "SINGLE_LINE",
+              "name": "guestEmails",
+              "value": values.guestEmails || ""
+            }
+          },
+          {
+            "textParagraph": {
+              "text": "<i>Hệ thống sẽ tự động tạo lịch Google Calendar cho Boss và thông báo vào nhóm chat.</i>"
+            }
+          }
+        ]
+      }
+    ],
+    "fixedFooter": {
+      "primaryButton": {
+        "text": "✅ Gửi thông tin",
+        "onClick": {
+          "action": {
+            "function": "handleTicketSubmit"
+          }
+        },
+        "color": {
+          "red": 0.0,
+          "green": 0.6,
+          "blue": 0.0,
+          "alpha": 1.0
+        }
+      }
+    }
+  };
+}
+
+function createTicketDialog(prefilledValues, isAppCommand) {
+  Logger.log("createTicketDialog gọi, isAppCommand: " + isAppCommand);
+  const cardBody = buildTicketCardBody(prefilledValues);
+
+  if (isAppCommand) {
+    // Format cho Workspace Add-on onAppCommand
+    return {
+      "renderActions": {
+        "action": {
+          "navigations": [
+            {
+              "pushCard": cardBody
+            }
+          ]
+        }
+      }
+    };
+  }
+
+  // Format cho onCardClick / legacy DIALOG
+  return {
+    "actionResponse": {
+      "type": "DIALOG",
+      "dialogAction": {
+        "dialog": {
+          "body": cardBody
+        }
+      }
+    }
+  };
+}
+
+function openTicketDialog(event) {
+  Logger.log("openTicketDialog (card click) gọi");
+  let prefilledData = null;
   let parameters = null;
+
   if (event.commonEventObject && event.commonEventObject.parameters) {
     parameters = event.commonEventObject.parameters;
   } else if (event.action && event.action.parameters) {
     parameters = {};
-    event.action.parameters.forEach(p => {
-      parameters[p.key] = p.value;
-    });
+    event.action.parameters.forEach(p => { parameters[p.key] = p.value; });
   }
 
   if (parameters && parameters.prefilledData) {
     try {
-      if (typeof parameters.prefilledData === 'string') {
-        prefilledData = JSON.parse(parameters.prefilledData);
-      } else {
-        prefilledData = parameters.prefilledData;
-      }
+      prefilledData = typeof parameters.prefilledData === 'string'
+        ? JSON.parse(parameters.prefilledData)
+        : parameters.prefilledData;
     } catch (e) {
       Logger.log("Lỗi parse prefilledData: " + e.toString());
     }
   }
 
-  return createTicketDialog(prefilledData);
-}
-
-/**
- * Trình tạo Dialog Form nhập thông tin vé máy bay trực quan trên Google Chat
- */
-function createTicketDialog(prefilledValues) {
-  const values = prefilledValues || {};
-  // Google Workspace Add-on dùng renderActions + openDialog (không dùng actionResponse)
-  return {
-    "renderActions": {
-      "action": {
-        "navigations": [
-          {
-            "pushCard": {
-              "header": {
-                "title": "200 AI - Air Ticket",
-                "subtitle": "✈️ Đăng ký Vé Máy Bay"
-              },
-              "sections": [
-                {
-                  "header": "Thông tin hành trình",
-                  "widgets": [
-                    {
-                      "textInput": {
-                        "label": "Mã vé (Ví dụ: VN213)",
-                        "type": "SINGLE_LINE",
-                        "name": "ticketCode",
-                        "value": values.ticketCode || ""
-                      }
-                    },
-                    {
-                      "textInput": {
-                        "label": "Điểm đi (Ví dụ: HAN)",
-                        "type": "SINGLE_LINE",
-                        "name": "from",
-                        "value": values.from || ""
-                      }
-                    },
-                    {
-                      "textInput": {
-                        "label": "Điểm đến (Ví dụ: SGN)",
-                        "type": "SINGLE_LINE",
-                        "name": "to",
-                        "value": values.to || ""
-                      }
-                    },
-                    {
-                      "textInput": {
-                        "label": "Ngày bay (Ví dụ: 21/05/2026)",
-                        "type": "SINGLE_LINE",
-                        "name": "date",
-                        "value": values.date || ""
-                      }
-                    },
-                    {
-                      "textInput": {
-                        "label": "Giờ bay (Ví dụ: 13:00)",
-                        "type": "SINGLE_LINE",
-                        "name": "time",
-                        "value": values.time || ""
-                      }
-                    },
-                    {
-                      "textInput": {
-                        "label": "Ghi chú (nếu có)",
-                        "type": "SINGLE_LINE",
-                        "name": "note",
-                        "value": values.note || ""
-                      }
-                    },
-                    {
-                      "textParagraph": {
-                        "text": "<i>Hệ thống sẽ tự động tạo lịch Google Calendar cho Boss và thông báo vào nhóm chat.</i>"
-                      }
-                    },
-                    {
-                      "buttonList": {
-                        "buttons": [
-                          {
-                            "text": "✅ Submit",
-                            "onClick": {
-                              "action": {
-                                "function": "handleTicketSubmit"
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        ]
-      }
-    }
-  };
+  // Card click dùng DIALOG format
+  return createTicketDialog(prefilledData, false);
 }
 
 /**
@@ -843,120 +810,171 @@ function getInputValue(formInputs, fieldName) {
  * Trình xử lý khi người dùng nhấn nút Submit trong Dialog Form
  */
 function handleTicketSubmit(event) {
-  const isAddOn = isAddOnEvent(event);
+  Logger.log("handleTicketSubmit gọi: " + JSON.stringify(event));
   try {
     const formInputs = event.commonEventObject ? event.commonEventObject.formInputs : null;
 
-    const ticketCode = getInputValue(formInputs, 'ticketCode');
-    const from = getInputValue(formInputs, 'from');
-    const to = getInputValue(formInputs, 'to');
-    const date = getInputValue(formInputs, 'date');
-    const time = getInputValue(formInputs, 'time');
-    const note = getInputValue(formInputs, 'note');
+    const ticketCode = getInputValue(formInputs, 'ticketCode').toUpperCase().trim();
+    const from = getInputValue(formInputs, 'from').toUpperCase().trim();
+    const to = getInputValue(formInputs, 'to').toUpperCase().trim();
+    const pdfUrl = getInputValue(formInputs, 'pdfUrl').trim();
+    const note = getInputValue(formInputs, 'note').toUpperCase().trim();
+    const guestEmails = getInputValue(formInputs, 'guestEmails').trim();
 
-    if (!from || !to) {
-      if (isAddOn) {
-        return {
-          "actionResponse": {
-            "notification": {
-              "text": "⚠️ Vui lòng điền đầy đủ Điểm đi và Điểm đến!"
-            }
-          }
-        };
+    // Đọc Ngày bay từ dateTimePicker (DATE_ONLY)
+    let date = "";
+    if (formInputs && formInputs['date']) {
+      const dateInput = formInputs['date'].dateInput;
+      if (dateInput && dateInput.msSinceEpoch) {
+        const msSinceEpoch = Number(dateInput.msSinceEpoch);
+        const d = new Date(msSinceEpoch);
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yyyy = d.getFullYear();
+        date = `${dd}/${mm}/${yyyy}`;
       } else {
-        return {
-          "actionResponse": {
-            "type": "DIALOG",
-            "dialogAction": {
-              "actionStatus": {
-                "statusCode": "INVALID_ARGUMENT",
-                "userFacingMessage": "⚠️ Vui lòng điền đầy đủ Điểm đi và Điểm đến!"
-              }
-            }
-          }
-        };
+        date = getInputValue(formInputs, 'date');
       }
     }
 
-    const ticketData = {
-      from: from,
-      to: to,
-      ticketCode: ticketCode,
-      date: date,
-      time: time,
-      pdfBase64: null, // Không có file tải lên trực tiếp từ dialog
-      note: note
-    };
+    // Đọc Giờ bay từ dateTimePicker (TIME_ONLY)
+    let time = "";
+    if (formInputs && formInputs['time']) {
+      const timeInput = formInputs['time'].timeInput;
+      if (timeInput) {
+        const hours = timeInput.hours !== undefined ? timeInput.hours : 0;
+        const minutes = timeInput.minutes !== undefined ? timeInput.minutes : 0;
+        const hh = String(hours).padStart(2, '0');
+        const min = String(minutes).padStart(2, '0');
+        time = `${hh}:${min}`;
+      } else {
+        time = getInputValue(formInputs, 'time');
+      }
+    }
 
-    // Gọi quy trình xử lý vé máy bay (Lưu lịch & Gửi thông báo chat)
-    processAirTicketWorkflow(ticketData);
+    // Đọc Giờ hạ cánh từ dateTimePicker (TIME_ONLY)
+    let arrivalTime = "";
+    if (formInputs && formInputs['arrivalTime']) {
+      const timeInput = formInputs['arrivalTime'].timeInput;
+      if (timeInput) {
+        const hours = timeInput.hours !== undefined ? timeInput.hours : 0;
+        const minutes = timeInput.minutes !== undefined ? timeInput.minutes : 0;
+        const hh = String(hours).padStart(2, '0');
+        const min = String(minutes).padStart(2, '0');
+        arrivalTime = `${hh}:${min}`;
+      } else {
+        arrivalTime = getInputValue(formInputs, 'arrivalTime');
+      }
+    }
 
-    // Đóng dialog và thông báo thành công
-    if (isAddOn) {
+    Logger.log("Form data: from=" + from + ", to=" + to + ", date=" + date + ", time=" + time + ", arrivalTime=" + arrivalTime + ", pdfUrl=" + pdfUrl);
+
+    if (!from || !to) {
       return {
         "renderActions": {
           "action": {
             "navigations": [
               {
-                "endNavigation": "CLOSE_DIALOG"
+                "pushCard": {
+                  "sections": [{
+                    "widgets": [{
+                      "textParagraph": {
+                        "text": "⚠️ Vui lòng điền đầy đủ <b>Điểm đi</b> và <b>Điểm đến</b>!"
+                      }
+                    }]
+                  }]
+                }
               }
-            ],
-            "notification": {
-              "text": "✅ Đã lưu thông tin vé máy bay thành công!"
-            }
-          }
-        }
-      };
-    } else {
-      return {
-        "actionResponse": {
-          "type": "DIALOG",
-          "dialogAction": {
-            "actionStatus": {
-              "statusCode": "OK",
-              "userFacingMessage": "✅ Đã lưu thông tin vé máy bay thành công!"
-            }
+            ]
           }
         }
       };
     }
+
+    processAirTicketWorkflow({ from, to, ticketCode, date, time, arrivalTime, pdfBase64: null, pdfUrl, note, guestEmails });
+
+    const prefilledReturn = {
+      ticketCode: ticketCode,
+      from: to, // Đảo ngược điểm đi điểm đến
+      to: from, // Đảo ngược điểm đi điểm đến
+      guestEmails: guestEmails,
+      note: "CHIỀU VỀ"
+    };
+
+    // Trả về card xác nhận thành công và cung cấp nút bấm để đăng ký vé khứ hồi ngay lập tức
+    return {
+      "renderActions": {
+        "action": {
+          "navigations": [
+            {
+              "updateCard": {
+                "header": {
+                  "title": "200 AI - Air Ticket",
+                  "subtitle": "✅ Đăng ký thành công"
+                },
+                "sections": [
+                  {
+                    "widgets": [
+                      {
+                        "textParagraph": {
+                          "text": "✅ <b>Đã lưu thông tin vé máy bay thành công!</b><br>Bạn có muốn đăng ký tiếp vé chiều về (khứ hồi) hoặc vé khác không?"
+                        }
+                      },
+                      {
+                        "buttonList": {
+                          "buttons": [
+                            {
+                              "text": "✈️ Đăng ký chiều về (Khứ hồi)",
+                              "onClick": {
+                                "action": {
+                                  "function": "showReturnFlightForm",
+                                  "parameters": [
+                                    {
+                                      "key": "prefilledData",
+                                      "value": JSON.stringify(prefilledReturn)
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "text": "❌ Hoàn tất & Đóng",
+                              "onClick": {
+                                "action": {
+                                  "function": "closeDialog"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "notification": {
+            "text": "✅ Đã lưu thông tin vé máy bay thành công!"
+          }
+        }
+      }
+    };
+
   } catch (error) {
-    if (isAddOn) {
-      return {
-        "actionResponse": {
+    Logger.log("Lỗi handleTicketSubmit: " + error.toString());
+    return {
+      "renderActions": {
+        "action": {
           "notification": {
             "text": "❌ Có lỗi xảy ra: " + error.toString()
           }
         }
-      };
-    } else {
-      return {
-        "actionResponse": {
-          "type": "DIALOG",
-          "dialogAction": {
-            "actionStatus": {
-              "statusCode": "UNKNOWN",
-              "userFacingMessage": "❌ Có lỗi xảy ra: " + error.toString()
-            }
-          }
-        }
-      };
-    }
+      }
+    };
   }
 }
 
-/**
- * Helper: Tạo chuỗi mention/tag cho tài khoản AI (vh)
- */
-function getVhMention() {
-  if (VH_USER_ID && VH_USER_ID.startsWith('users/')) {
-    return `<${VH_USER_ID}>`;
-  }
-  if (VH_USER_ID && !VH_USER_ID.startsWith('@')) {
-    return `@${VH_USER_ID}.`;
-  }
-  return VH_USER_ID || '@vh.';
-}
 
 /**
  * Helper: Tạo chuỗi mention/tag cho Boss (Son, MinChang)
@@ -965,10 +983,10 @@ function getBossMention() {
   if (BOSS_USER_ID && BOSS_USER_ID.startsWith('users/')) {
     return `<${BOSS_USER_ID}>`;
   }
-  if (BOSS_USER_ID && !BOSS_USER_ID.startsWith('@')) {
-    return `@${BOSS_USER_ID}`;
+  if (BOSS_USER_ID && !BOSS_USER_ID.startsWith('')) {
+    return `${BOSS_USER_ID}`;
   }
-  return BOSS_USER_ID || '@손민창 (Son, MinChang)';
+  return BOSS_USER_ID || '손민창 (Son, MinChang)';
 }
 
 /**
@@ -1007,6 +1025,15 @@ function parseTicketDate(dateStr) {
 }
 
 /**
+ * Helper: Trích xuất ID tệp Google Drive từ URL chia sẻ
+ */
+function extractDriveFileId(url) {
+  if (!url) return null;
+  const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  return match ? match[1] : null;
+}
+
+/**
  * Hàm xử lý chính: Lưu Drive theo tháng thực tế -> Tạo lịch cho Boss -> Gửi tin nhắn nhóm chat
  * @param {Object|Array} data - Dữ liệu đầu vào từ Form AI (hỗ trợ vé đơn hoặc mảng nhiều vé)
  */
@@ -1032,27 +1059,135 @@ function processAirTicketWorkflow(data) {
     const ticket = tickets[i];
     const dateInfo = parseTicketDate(ticket.date);
 
+    // Phân tích danh sách email khách mời
+    let guestEmailsArray = [];
+    if (ticket.guestEmails && ticket.guestEmails.trim() !== "") {
+      guestEmailsArray = ticket.guestEmails.split(",").map(e => e.trim()).filter(e => e !== "");
+    }
+
     // -------------------------------------------------------------
     // XỬ LÝ STT 6: TỰ ĐỘNG PHÂN LOẠI VÀ LƯU FILE PDF VÀO DRIVE THEO THÁNG
     // -------------------------------------------------------------
     let fileUrl = "Không có file đính kèm";
-    let fileName = "";
-    if (ticket.pdfBase64) {
-      // Đặt tên file theo cú pháp mới: <ngày> <Điểm đi- Điểm đến>
-      // Ví dụ: 21052026 HAN - SGN.pdf
-      fileName = `${dateInfo.ddmmyyyy} ${ticket.from}-${ticket.to}`;
-      if (ticket.note) {
-        fileName += ` (${ticket.note})`;
-      }
+    let fileName = `${dateInfo.ddmmyyyy} ${ticket.from}-${ticket.to}`;
+    if (ticket.note) {
+      fileName += ` (${ticket.note})`;
+    }
 
+    let savedFile = null;
+
+    if (ticket.pdfBase64) {
       // Giải mã chuỗi Base64 nhận được từ AI thành tệp PDF trực tiếp
       const decodedPdf = Utilities.base64Decode(ticket.pdfBase64);
       const blob = Utilities.newBlob(decodedPdf, 'application/pdf', fileName + '.pdf');
 
       // Lưu tệp vào thư mục tháng tương ứng
-      const file = targetFolder.createFile(blob);
-      fileUrl = file.getUrl();
+      savedFile = targetFolder.createFile(blob);
+      fileUrl = savedFile.getUrl();
+    } else if (ticket.pdfUrl && ticket.pdfUrl.trim() !== "") {
+      const folderMatch = ticket.pdfUrl.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+      const driveFileId = extractDriveFileId(ticket.pdfUrl);
+
+      if (folderMatch) {
+        // XỬ LÝ TRƯỜNG HỢP LINK LÀ THƯ MỤC GOOGLE DRIVE
+        const folderId = folderMatch[1];
+        try {
+          const folder = DriveApp.getFolderById(folderId);
+          const files = folder.getFiles();
+          let fileToCopy = null;
+
+          let count = 0;
+          while (files.hasNext() && count < 10) {
+            const file = files.next();
+            count++;
+            const mime = file.getMimeType().toLowerCase();
+            // Ưu tiên tệp PDF hoặc ảnh (PNG, JPG, JPEG)
+            if (mime === 'application/pdf' || mime.startsWith('image/')) {
+              fileToCopy = file;
+              break;
+            }
+            if (!fileToCopy) {
+              fileToCopy = file; // Tạm lấy tệp đầu tiên
+            }
+          }
+
+          if (fileToCopy) {
+            let ext = ".pdf";
+            const originalName = fileToCopy.getName();
+            const dotIdx = originalName.lastIndexOf(".");
+            if (dotIdx !== -1) {
+              ext = originalName.substring(dotIdx);
+            }
+            savedFile = fileToCopy.makeCopy(fileName + ext, targetFolder);
+            fileUrl = savedFile.getUrl();
+          } else {
+            Logger.log("Thư mục Google Drive trống hoặc không tìm thấy tệp.");
+            fileUrl = ticket.pdfUrl;
+          }
+        } catch (folderError) {
+          Logger.log("Lỗi xử lý thư mục Google Drive: " + folderError.toString());
+          fileUrl = ticket.pdfUrl;
+        }
+      } else if (driveFileId) {
+        // XỬ LÝ TRƯỜNG HỢP LINK LÀ TỆP GOOGLE DRIVE TRỰC TIẾP
+        try {
+          const fileToCopy = DriveApp.getFileById(driveFileId);
+          let ext = ".pdf";
+          const originalName = fileToCopy.getName();
+          const dotIdx = originalName.lastIndexOf(".");
+          if (dotIdx !== -1) {
+            ext = originalName.substring(dotIdx);
+          }
+          savedFile = fileToCopy.makeCopy(fileName + ext, targetFolder);
+          fileUrl = savedFile.getUrl();
+        } catch (copyError) {
+          Logger.log("Không thể sao chép file từ Drive: " + copyError.toString());
+          fileUrl = ticket.pdfUrl; // Fallback giữ nguyên link gốc
+        }
+      } else if (ticket.pdfUrl.toLowerCase().startsWith("http") && !ticket.pdfUrl.toLowerCase().includes("drive.google.com")) {
+        // XỬ LÝ TRƯỜNG HỢP LINK WEB NGOÀI (Ví dụ: URL trực tiếp từ hãng bay)
+        try {
+          const response = UrlFetchApp.fetch(ticket.pdfUrl);
+          const blob = response.getBlob().setName(fileName + ".pdf");
+          savedFile = targetFolder.createFile(blob);
+          fileUrl = savedFile.getUrl();
+        } catch (fetchError) {
+          Logger.log("Không thể tải file từ URL ngoài: " + fetchError.toString());
+          fileUrl = ticket.pdfUrl; // Fallback giữ nguyên link gốc
+        }
+      } else {
+        fileUrl = ticket.pdfUrl;
+      }
     }
+
+    // Tự động cấu hình chia sẻ để Google Chat tự động hiển thị/unfurl file đính kèm
+    if (savedFile) {
+      try {
+        savedFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      } catch (shareError) {
+        Logger.log("Không thể cấu hình setSharing ANYONE_WITH_LINK: " + shareError.toString());
+        try {
+          // Thử quyền DOMAIN_WITH_LINK nếu bị cấm chia sẻ ngoài tổ chức (Workspace admin policy)
+          savedFile.setSharing(DriveApp.Access.DOMAIN_WITH_LINK, DriveApp.Permission.VIEW);
+        } catch (domainError) {
+          Logger.log("Không thể cấu hình setSharing DOMAIN_WITH_LINK: " + domainError.toString());
+        }
+      }
+    }
+
+    // Tự động chia sẻ quyền xem file cho các email tham gia
+    if (savedFile && guestEmailsArray.length > 0) {
+      guestEmailsArray.forEach(email => {
+        try {
+          savedFile.addViewer(email);
+        } catch (shareError) {
+          Logger.log("Không thể chia sẻ file cho email: " + email + ", lỗi: " + shareError.toString());
+        }
+      });
+    }
+
+    const finalFileName = savedFile ? savedFile.getName() : (fileName + ".pdf");
+    const finalMimeType = savedFile ? savedFile.getMimeType() : "application/pdf";
 
     // -------------------------------------------------------------
     // TỰ ĐỘNG TẠO SỰ KIỆN TRÊN GOOGLE CALENDAR CHO BOSS
@@ -1063,23 +1198,66 @@ function processAirTicketWorkflow(data) {
       const startDateTime = new Date(`${dateInfo.year}-${dateInfo.month}-${dateInfo.day}T${ticket.time}:00`);
 
       if (!isNaN(startDateTime.getTime())) {
-        // Mặc định thời gian chặn lịch tạm thời là 2 tiếng cho chuyến bay
-        const endDateTime = new Date(startDateTime.getTime() + 2 * 60 * 60 * 1000);
+        // Sử dụng giờ hạ cánh được chọn, hoặc mặc định cộng thêm 2 tiếng nếu không nhập
+        let endDateTime;
+        if (ticket.arrivalTime) {
+          endDateTime = new Date(`${dateInfo.year}-${dateInfo.month}-${dateInfo.day}T${ticket.arrivalTime}:00`);
+          // Nếu giờ đến nhỏ hơn giờ đi, tức là chuyến bay qua đêm (qua ngày hôm sau)
+          if (endDateTime.getTime() < startDateTime.getTime()) {
+            endDateTime.setDate(endDateTime.getDate() + 1);
+          }
+        } else {
+          endDateTime = new Date(startDateTime.getTime() + 2 * 60 * 60 * 1000);
+        }
 
         const eventTitle = `✈️ [Chuyến bay] ${ticket.from} - ${ticket.to} (${ticket.ticketCode})`;
-        const eventDescription = `• Mã vé: ${ticket.ticketCode}\n` +
-          `• Lộ trình: Từ ${ticket.from} đến ${ticket.to}\n` +
-          `• Giờ khởi hành: ${ticket.time} ngày ${dateInfo.displayDate}\n` +
-          `• Link xem file vé trên Drive: ${fileUrl}\n` +
-          `• Ghi chú: ${ticket.note || 'Không có'}`;
+
+        // Tạo chuỗi hiển thị thời gian bay: Giờ đi - Giờ đến
+        const flightTimeRange = ticket.arrivalTime ? `${ticket.time} - ${ticket.arrivalTime}` : ticket.time;
+        const eventDescription = `Mã khách hàng: ${ticket.ticketCode}\nThời gian bay: ${flightTimeRange}\n${fileUrl}`;
 
         const calendar = CalendarApp.getCalendarById(BOSS_CALENDAR_ID);
         if (calendar) {
-          const event = calendar.createEvent(eventTitle, startDateTime, endDateTime, {
-            description: eventDescription,
-            location: `Sân bay ${ticket.from}`
-          });
-          calendarEventId = event.getId();
+          // Trích xuất Drive File ID nếu có fileUrl được lưu thành công trên Drive
+          const driveFileId = extractDriveFileId(fileUrl);
+
+          try {
+            // Chuẩn bị đối tượng event cho Advanced Calendar API
+            const eventResource = {
+              summary: eventTitle,
+              location: `Sân bay ${ticket.from}`,
+              description: eventDescription,
+              start: {
+                dateTime: startDateTime.toISOString()
+              },
+              end: {
+                dateTime: endDateTime.toISOString()
+              },
+              attendees: guestEmailsArray.map(email => ({ email: email })),
+              attachments: driveFileId ? [{
+                fileUrl: fileUrl,
+                title: finalFileName,
+                mimeType: finalMimeType
+              }] : []
+            };
+
+            // Gọi Advanced Calendar API để chèn sự kiện có đính kèm file và khách mời
+            const createdEvent = Calendar.Events.insert(eventResource, BOSS_CALENDAR_ID, {
+              supportsAttachments: true,
+              sendUpdates: "all"
+            });
+            calendarEventId = createdEvent.id;
+          } catch (apiError) {
+            Logger.log("Không thể tạo lịch bằng Advanced Calendar API (có thể do chưa bật API), fallback về CalendarApp: " + apiError.toString());
+
+            // Fallback sang CalendarApp truyền thống nếu người dùng chưa bật Calendar API
+            const event = calendar.createEvent(eventTitle, startDateTime, endDateTime, {
+              description: eventDescription,
+              location: `Sân bay ${ticket.from}`,
+              guests: guestEmailsArray.join(",")
+            });
+            calendarEventId = event.getId();
+          }
         }
       } else {
         Logger.log("Ngày giờ không hợp lệ để tạo lịch: " + ticket.date + " " + ticket.time);
@@ -1091,8 +1269,9 @@ function processAirTicketWorkflow(data) {
       from: ticket.from,
       to: ticket.to,
       time: ticket.time,
+      arrivalTime: ticket.arrivalTime || "",
       dateFormatted: dateInfo.displayDate,
-      fileName: fileName,
+      fileName: finalFileName,
       driveFileUrl: fileUrl,
       calendarEventId: calendarEventId
     });
@@ -1147,22 +1326,21 @@ function sendChatNotification(results) {
     return;
   }
 
-  const vhMention = getVhMention();
   const bossMention = getBossMention();
   const ticketCount = results.length;
 
-  // Dòng 1: @vh. Dear Boss @손민창 (Son, MinChang) , '200' xin gửi X vé máy bay:
-  let messageText = `${vhMention} Dear Boss ${bossMention} , '${CALENDAR_NAME}' xin gửi ${ticketCount} vé máy bay:\n`;
+  let messageText = `Dear Boss ${bossMention}, '${CALENDAR_NAME}' xin gửi ${ticketCount} vé máy bay:\n`;
 
   // Các dòng thông tin vé máy bay
   results.forEach(ticket => {
-    // Định dạng: • VN213: HAN -> SGN: 13:00 ngày 21/05/2026
-    messageText += `• ${ticket.ticketCode || 'Vé máy bay'}: ${ticket.from} -> ${ticket.to}: ${ticket.time} ngày ${ticket.dateFormatted}\n`;
+    // Định dạng: • VN213: HAN -> SGN: 13:00 - 15:00 ngày 21/05/2026
+    const timeDisplay = ticket.arrivalTime ? `${ticket.time} - ${ticket.arrivalTime}` : ticket.time;
+    messageText += `• ${ticket.ticketCode || 'Vé máy bay'}: ${ticket.from} -> ${ticket.to}: ${timeDisplay} ngày ${ticket.dateFormatted}\n`;
 
-    // Định dạng link PDF kèm tên file dạng markdown để hiển thị link ngắn gọn
+    // Định dạng link đính kèm để hiển thị link ngắn gọn
     if (ticket.driveFileUrl && ticket.driveFileUrl !== "Không có file đính kèm") {
       // Google Chat webhook hỗ trợ format link dạng <URL> hoặc URL thuần
-      messageText += `  📎 ${ticket.fileName}.pdf: ${ticket.driveFileUrl}\n`;
+      messageText += `  📎 ${ticket.fileName}: ${ticket.driveFileUrl}\n`;
     }
   });
 
