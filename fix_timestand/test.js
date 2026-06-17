@@ -2984,6 +2984,47 @@ function handleCheckSaturday(data, rowIndex, ts) {
     return
   }
 
+  // Không giờ vào/ra nhưng có request công việc (+s, +c, +)
+  if (req === '+s' || req === '+c' || req === '+') {
+    var detail = handleDetailClassification(data.day, tin, tout, req)
+
+    restoreCellColor(rowIndex)
+
+    if (detail.workUnit && String(detail.workUnit).trim() == '+') {
+      detail.workUnit = 'Full'
+    } else if (detail.workUnit && String(detail.workUnit).trim() == '-') {
+      detail.workUnit = 'Nửa'
+    } else if (detail.workUnit && String(detail.workUnit).trim() == 'N') {
+      detail.workUnit = 'Nghỉ'
+    }
+
+    sheet.getRange('H' + rowIndex).setValue(String(detail.workUnit).trim())
+
+    if (detail.workUnit == 'Nghỉ') {
+      formatCell('H' + rowIndex.toFixed(0))
+    } else {
+      restoreDefaultCell('H' + rowIndex.toFixed(0))
+    }
+
+    if (ts != -1) {
+      detail.note = ''
+      if (tin === '' && tout === '') {
+      } else if ((tin !== '' && tout === '') || (tin === '' && tout !== '')) {
+        detail.note += 'Quên '
+      }
+      if (timeToMinutes(tin) > timeToMinutes('8:00') + additionTime) {
+        detail.note += 'Muộn '
+      }
+    }
+
+    var overtime1 = data.ot
+    if (data.ot === '' || timeToMinutes(String(overtime1).slice(-4)) >= timeToMinutes('17:30')) {
+      sheet.getRange('I' + rowIndex.toFixed(0)).setValue(String(detail.note).trim())
+    }
+
+    return
+  }
+
   // Không giờ vào/ra: thứ 7 so le — còn suất trong cột V → được phép nghỉ, hết suất → nghỉ
   restoreCellColor(rowIndex)
   if (stack > 0) {

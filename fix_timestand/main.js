@@ -187,7 +187,7 @@ function parseISOToVNDateTime(isoString) {
 
 // === 1.2 ===
 function sendtoGemini(prompt) {
-  var API_KEY = "AIzaSyCp0rYqMgE0GKaKVFVZBg7Ygu7p_67jCRA";
+  var API_KEY = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
 
   var payload = {
     contents: [
@@ -200,32 +200,67 @@ function sendtoGemini(prompt) {
   var options = {
     method: "post",
     contentType: "application/json",
-    payload: JSON.stringify(payload)
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
   };
 
-  try {
-    var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
-    // var url = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
-    // var url = "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=" + API_KEY;
-    // var url = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=" + API_KEY;
+  var MODEL_NAME = "gemini-2.5-flash"; // Model ổn định nhất hiện tại
+  var url = "https://generativelanguage.googleapis.com/v1beta/models/" + MODEL_NAME + ":generateContent?key=" + API_KEY;
+  var maxRetries = 3;
+  var delayMs = 2000;
 
-    var response = UrlFetchApp.fetch(url, options);
-    var json = JSON.parse(response.getContentText());
+  for (var attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      var response = UrlFetchApp.fetch(url, options);
+      var responseCode = response.getResponseCode();
+      var responseText = response.getContentText();
 
-    if (json.candidates && json.candidates.length > 0) {
-      return json.candidates[0].content.parts[0].text;
-    } else {
-      return "Xin lỗi, tôi không thể lấy phản hồi từ AI.";
+      if (responseCode === 200) {
+        var json = JSON.parse(responseText);
+        if (json.candidates && json.candidates.length > 0 && json.candidates[0].content && json.candidates[0].content.parts && json.candidates[0].content.parts.length > 0) {
+          return json.candidates[0].content.parts[0].text;
+        } else {
+          return "Xin lỗi, tôi không thể lấy phản hồi từ AI (cấu trúc phản hồi không đúng).";
+        }
+      } else if (responseCode === 503 || responseCode === 429) {
+        Logger.log("Gemini API trả về mã " + responseCode + ". Thử lại lần " + attempt + "/" + maxRetries + " sau " + delayMs + "ms...");
+        if (attempt < maxRetries) {
+          Utilities.sleep(delayMs);
+          delayMs *= 2;
+          continue;
+        } else {
+          return "Có lỗi xảy ra: API Gemini bận (mã " + responseCode + ") sau " + maxRetries + " lần thử lại. Phản hồi: " + responseText;
+        }
+      } else {
+        return "Có lỗi xảy ra: API Gemini trả về lỗi " + responseCode + ". Chi tiết: " + responseText;
+      }
+    } catch (e) {
+      Logger.log("Exception trong sendtoGemini (lần " + attempt + "): " + e.toString());
+      if (attempt < maxRetries) {
+        Utilities.sleep(delayMs);
+        delayMs *= 2;
+      } else {
+        return "Có lỗi xảy ra: " + e.toString();
+      }
     }
-  } catch (e) {
-    Logger.log("Error: " + e.toString());
-    return "Có lỗi xảy ra: " + e.toString();
   }
+  return "Có lỗi xảy ra: Không thể nhận phản hồi từ Gemini API.";
 }
 
 
 // === 1.3 ===
 function addInsightToSheet(data) {
+  if (!data || typeof data !== 'string') {
+    Logger.log("Dữ liệu không hợp lệ truyền vào addInsightToSheet");
+    return;
+  }
+
+  if (data.indexOf("Có lỗi xảy ra") !== -1) {
+    Logger.log("Không thể ghi nhận dữ liệu do lỗi API Gemini: " + data);
+    SpreadsheetApp.getActiveSpreadsheet().toast("Lỗi API Gemini: " + data, "Lỗi nhận diện", 6);
+    return;
+  }
+
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName("Finger Print");
   var lastRow = sheet.getLastRow();
@@ -238,7 +273,7 @@ function addInsightToSheet(data) {
   // Lấy dữ liệu 2 cột A và B để đối chiếu (Lấy DisplayValues để so sánh chính xác text)
   var rangeData = sheet.getRange(1, 1, lastRow, 2).getDisplayValues();
 
-  var spData = spreadData_Fix(data);
+  var spData = spreadData(data);
 
   for (var i = 0; i < spData.length; i++) {
     var geminiName = spData[i][0];
@@ -469,10 +504,10 @@ function isSamePerson(geminiName, sheetFullName) {
   // Rule cứng: Chữ cuối của tên do Gemini trả về phải khớp với chữ cuối của tên trong sheet
   var nWords = n.split(/\s+/);
   var fWords = f.split(/\s+/);
-
+  
   var nLast = removeVietnameseTones(nWords[nWords.length - 1]);
   var fLast = removeVietnameseTones(fWords[fWords.length - 1]);
-
+  
   if (nLast !== fLast) return false;
 
   // Nếu match ngay thì trả về true
@@ -612,7 +647,8 @@ function getRequestData(rowStart, numRows) {
   for (var i = 0; i < values.length; i++) {
     var cellValue = values[i][0];
     if (cellValue !== "" && cellValue !== null) {
-      var rowIndex = rowStart * 1 + i
+      var rowIndex = rowStart * 1 + i;
+      if (rowIndex < 3) continue;
       result.push({
         row: rowIndex,
         request: cellValue
@@ -625,38 +661,60 @@ function getRequestData(rowStart, numRows) {
 
 // === 1.2 ===
 function handleFilltype(data) {
+  if (!data || typeof data !== 'string') {
+    Logger.log("Dữ liệu không hợp lệ truyền vào handleFilltype");
+    return;
+  }
+
+  if (data.indexOf("Có lỗi xảy ra") !== -1) {
+    Logger.log("Không thể phân loại lý do do lỗi API Gemini: " + data);
+    SpreadsheetApp.getActiveSpreadsheet().toast("Lỗi API Gemini: " + data, "Lỗi phân loại", 6);
+    return;
+  }
+
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getActiveSheet();
 
-  data = data.split(",")
+  var items = data.split(",");
 
-  for (var i = 0; i < data.length; i++) {
-    var temp = data[i].split(' ');
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i].trim();
+    if (!item) continue;
 
-    if (temp[1].trim() == 'o' || temp[1].trim() == 'o,' || temp[1].trim() == 'o.') {
-      temp[1] = ''
-    } else if (temp[1].trim() == '+s+c' || temp[1].trim() == '+c+s') {
-      temp[1] = '+'
-    } else if (temp[1].trim() == '-s-c' || temp[1].trim() == '-c-s') {
-      temp[1] = '-'
-    } else if (temp[1].trim() == '+s-c' || temp[1].trim() == '-c+s') {
-      temp[1] = '+s'
-    } else if (temp[1].trim() == '-s+c' || temp[1].trim() == '+c-s') {
-      temp[1] = '+c'
-    } else if (temp[1].trim() == '+c+c') {
-      temp[1] = '+c'
-    } else if (temp[1].trim() == '+s+s') {
-      temp[1] = '+s'
-    } else if (temp[1].trim() == '+s+') {
-      temp[1] = '+'
-    } else if (temp[1].trim() == '+c+') {
-      temp[1] = '+'
+    var temp = item.split(/\s+/);
+    if (temp.length < 2) continue;
+
+    var rowStr = temp[0].trim();
+    if (!/^\d+$/.test(rowStr)) continue; // Đảm bảo dòng là số nguyên hợp lệ
+
+    var rowIdx = parseInt(rowStr, 10);
+    if (rowIdx < 3) continue;
+
+    var action = temp[1].trim();
+
+    if (action == 'o' || action == 'o,' || action == 'o.') {
+      action = '';
+    } else if (action == '+s+c' || action == '+c+s') {
+      action = '+';
+    } else if (action == '-s-c' || action == '-c-s') {
+      action = '-';
+    } else if (action == '+s-c' || action == '-c+s') {
+      action = '+s';
+    } else if (action == '-s+c' || action == '+c-s') {
+      action = '+c';
+    } else if (action == '+c+c') {
+      action = '+c';
+    } else if (action == '+s+s') {
+      action = '+s';
+    } else if (action == '+s+') {
+      action = '+';
+    } else if (action == '+c+') {
+      action = '+';
     }
 
-    var gco = handleOValue(temp[1].trim())
+    var gco = handleOValue(action);
 
-
-    sheet.getRange("G" + temp[0].trim()).setValue(gco.trim())
+    sheet.getRange("G" + rowIdx).setValue(gco.trim());
   }
 }
 
@@ -737,7 +795,8 @@ function handleConfirmationWork() {
   mRow = sheet1.getRange(2, 4, lastRow, 1).getValues(); // Cột D = cột 4
   tRow = sheet1.getRange(2, 6, lastRow, 1).getValues(); // Cột F = cột 6
 
-  const dmyCell = sheet.getRange('I1').getValue().split(' ')
+  const dmyCellValue = sheet.getRange('I1').getValue();
+  const dmyCell = dmyCellValue ? String(dmyCellValue).split(' ') : [];
 
   var lastRow1 = getLastRowInColumn(sheet, 19)
   namess = sheet.getRange(3, 16, lastRow1, 1).getValues()
@@ -749,6 +808,8 @@ function handleConfirmationWork() {
   var rowStart = activeRow[0] * 1
   var satOrder = []
   for (var si = 0; si < data.length; si++) {
+    var rowIx = si + rowStart;
+    if (rowIx < 3) continue;
     if (data[si].day == 'Bảy') satOrder.push(si)
   }
   satOrder.sort(function (a, b) {
@@ -771,6 +832,7 @@ function handleConfirmationWork() {
 
   for (var i = 0; i < data.length; i++) {
     var rowIndex = i + activeRow[0] * 1
+    if (rowIndex < 3) continue;
 
     //1.6
     var ts = handleEmployeeClass(data[i].name)
@@ -915,8 +977,8 @@ function getRowData(rowStart, numRows) {
       name: nameColumn[i][0],
       dmy: dmyColumn[i][0],
       day: dayColumn[i][0],
-      timeIn: timeInColumn[i][0],
-      timeOut: timeOutColumn[i][0],
+      timeIn: normalizeSheetTime(timeInColumn[i][0]),
+      timeOut: normalizeSheetTime(timeOutColumn[i][0]),
       request: requestColumn[i][0],
       ot: otColumn[i][0]
     })
@@ -1837,9 +1899,14 @@ function identifyShift(checkInTime, checkOutTime) {
 // === 1.3.4.1 ===
 // Hàm phụ: Chuyển thời gian dạng "HH:MM" thành phút
 function timeToMinutes(time) {
-  var parts = time.split(':');
-  var hours = parseInt(parts[0], 10);
-  var minutes = parseInt(parts[1], 10);
+  if (!time) return 0;
+  if (Object.prototype.toString.call(time) === '[object Date]') {
+    return time.getHours() * 60 + time.getMinutes();
+  }
+  var parts = String(time).split(':');
+  if (parts.length < 2) return 0;
+  var hours = parseInt(parts[0], 10) || 0;
+  var minutes = parseInt(parts[1], 10) || 0;
   return hours * 60 + minutes;
 }
 
@@ -2961,6 +3028,47 @@ function handleCheckSaturday(data, rowIndex, ts) {
     var overtime = data.ot
     if (data.ot === '' || timeToMinutes(String(overtime).slice(-4)) >= timeToMinutes('17:30')) {
       sheet.getRange('I' + rowIndex.toFixed(0)).setValue(String(detail2.note).trim())
+    }
+
+    return
+  }
+
+  // Không giờ vào/ra nhưng có request công việc (+s, +c, +)
+  if (req === '+s' || req === '+c' || req === '+') {
+    var detail = handleDetailClassification(data.day, tin, tout, req)
+
+    restoreCellColor(rowIndex)
+
+    if (detail.workUnit && String(detail.workUnit).trim() == '+') {
+      detail.workUnit = 'Full'
+    } else if (detail.workUnit && String(detail.workUnit).trim() == '-') {
+      detail.workUnit = 'Nửa'
+    } else if (detail.workUnit && String(detail.workUnit).trim() == 'N') {
+      detail.workUnit = 'Nghỉ'
+    }
+
+    sheet.getRange('H' + rowIndex).setValue(String(detail.workUnit).trim())
+
+    if (detail.workUnit == 'Nghỉ') {
+      formatCell('H' + rowIndex.toFixed(0))
+    } else {
+      restoreDefaultCell('H' + rowIndex.toFixed(0))
+    }
+
+    if (ts != -1) {
+      detail.note = ''
+      if (tin === '' && tout === '') {
+      } else if ((tin !== '' && tout === '') || (tin === '' && tout !== '')) {
+        detail.note += 'Quên '
+      }
+      if (timeToMinutes(tin) > timeToMinutes('8:00') + additionTime) {
+        detail.note += 'Muộn '
+      }
+    }
+
+    var overtime1 = data.ot
+    if (data.ot === '' || timeToMinutes(String(overtime1).slice(-4)) >= timeToMinutes('17:30')) {
+      sheet.getRange('I' + rowIndex.toFixed(0)).setValue(String(detail.note).trim())
     }
 
     return
