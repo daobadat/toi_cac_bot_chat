@@ -79,22 +79,35 @@ function getRawData() {
         var response = UrlFetchApp.fetch(url, { headers: headers, muteHttpExceptions: true });
         var json = JSON.parse(response.getContentText());
 
+        var shouldStop = false;
         if (json.messages) {
-          json.messages.forEach(function (msg) {
+          for (var i = 0; i < json.messages.length; i++) {
+            var msg = json.messages[i];
             var time = parseISOToVNDateTime(msg.createTime)
             var text = msg.text || "[Nội dung không có văn bản]";
 
+            // compareDateTime trả về 1 nếu time > timecompare (tin nhắn mới hơn ngày F2)
             if (compareDateTime(time.time, time.date, timecompare, daycompare) == 1) {
               messages.push({
                 time: time.date,
                 text: text,
               });
+            } else {
+              // Tin nhắn đã cũ hơn ngày F2, do sắp xếp desc nên các tin sau cũng cũ hơn
+              shouldStop = true;
+              break;
             }
-
-          });
+          }
         }
-        return messages
+
+        pageToken = json.nextPageToken || null;
+
+        // Dừng nếu gặp tin nhắn cũ hơn ngày F2 hoặc hết trang
+        if (shouldStop) break;
+
       } while (pageToken);
+
+      return messages;
     }
   }
 
@@ -112,11 +125,6 @@ function getRawData() {
       json.messages.forEach(function (msg) {
         var time = parseISOToVNDateTime(msg.createTime)
         var text = msg.text || "[Nội dung không có văn bản]";
-        // var mailID = msg.sender.name.split('/')[1]
-        // messages.push({
-        //   time: time.slice(0, 10),
-        //   text: text,
-        // });
 
         messages.push({
           time: time.date,
@@ -124,8 +132,12 @@ function getRawData() {
         });
       });
     }
-    return messages
+
+    pageToken = json.nextPageToken || null;
+
   } while (pageToken);
+
+  return messages;
 }
 
 function compareDateTime(time1, day1, time2, day2) {

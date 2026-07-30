@@ -1,0 +1,1102 @@
+<!doctype html>
+<html>
+
+<head>
+    <base target="_top" />
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Google Sans", Arial, sans-serif;
+            padding: 16px;
+            color: #202124;
+            margin: 0;
+            background: #fff;
+        }
+
+        h3 {
+            margin: 0 0 16px 0;
+            color: #1a73e8;
+            font-size: 16px;
+            border-bottom: 2px solid #1a73e8;
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 13px;
+            color: #5f6368;
+        }
+
+        input[type="date"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition:
+                border-color 0.2s,
+                box-shadow 0.2s;
+        }
+
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+
+        .date-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .date-row .form-group {
+            flex: 1;
+        }
+
+        .quick-select {
+            margin-bottom: 16px;
+        }
+
+        .quick-select label {
+            margin-bottom: 8px;
+        }
+
+        .quick-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .quick-btn {
+            padding: 6px 12px;
+            background: #e8f0fe;
+            border: none;
+            border-radius: 16px;
+            color: #1a73e8;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: #1a73e8;
+            color: white;
+        }
+
+        /* Calendar Selection Styles */
+        .calendar-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .calendar-group-title {
+            font-weight: 600;
+            font-size: 12px;
+            color: #1a73e8;
+            margin: 8px 0 6px 0;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #dadce0;
+        }
+
+        .calendar-group-title:first-child {
+            margin-top: 0;
+        }
+
+        .calendar-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            margin: 4px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .calendar-item:hover {
+            background: #e8f0fe;
+        }
+
+        .calendar-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #1a73e8;
+            cursor: pointer;
+        }
+
+        .calendar-item label {
+            margin: 0;
+            font-size: 13px;
+            color: #202124;
+            cursor: pointer;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .select-all-btn {
+            padding: 4px 10px;
+            background: transparent;
+            border: 1px solid #dadce0;
+            border-radius: 12px;
+            color: #5f6368;
+            font-size: 11px;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+
+        .select-all-btn:hover {
+            background: #e8f0fe;
+            border-color: #1a73e8;
+            color: #1a73e8;
+        }
+
+        .selected-count {
+            font-size: 12px;
+            color: #1a73e8;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(26, 115, 232, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(26, 115, 232, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #dadce0;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 10px;
+            background: white;
+            color: #1a73e8;
+            border: 1px solid #1a73e8;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #e8f0fe;
+        }
+
+        .btn-sync {
+            width: 100%;
+            padding: 10px;
+            background: #34a853;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-sync:hover {
+            background: #2d9248;
+        }
+
+        .btn-sync:disabled {
+            background: #dadce0;
+            cursor: not-allowed;
+        }
+
+        #status {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: center;
+            display: none;
+        }
+
+        #status.success {
+            display: block;
+            background: #e6f4ea;
+            color: #137333;
+            border: 1px solid #34a853;
+        }
+
+        #status.error {
+            display: block;
+            background: #fce8e6;
+            color: #c5221f;
+            border: 1px solid #ea4335;
+        }
+
+        #status.loading {
+            display: block;
+            background: #e8f0fe;
+            color: #1a73e8;
+            border: 1px solid #1a73e8;
+        }
+
+        .config-info {
+            background: #fff3e0;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 16px;
+            font-size: 12px;
+            color: #e65100;
+            display: none;
+        }
+
+        .config-info.show {
+            display: block;
+        }
+
+        .help-text {
+            font-size: 11px;
+            color: #5f6368;
+            margin-top: 4px;
+        }
+
+        /* Delete Section Styles */
+        .section-divider {
+            border: none;
+            border-top: 2px solid #f1f3f4;
+            margin: 20px 0 16px 0;
+        }
+
+        .section-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 8px 0;
+            user-select: none;
+        }
+
+        .section-toggle h4 {
+            margin: 0;
+            font-size: 13px;
+            color: #c5221f;
+            font-weight: 600;
+        }
+
+        .section-toggle .toggle-icon {
+            font-size: 12px;
+            color: #5f6368;
+            transition: transform 0.2s;
+        }
+
+        .section-toggle.open .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .delete-section-body {
+            display: none;
+            animation: fadeIn 0.2s;
+        }
+
+        .delete-section-body.open {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .delete-list {
+            background: #fff8f8;
+            border: 1px solid #f5c6c6;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .delete-calendar-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .delete-calendar-item:hover {
+            background: #fce8e6;
+        }
+
+        .delete-calendar-item input[type="checkbox"] {
+            accent-color: #ea4335;
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+        }
+
+        .delete-calendar-item label {
+            margin: 0;
+            font-size: 13px;
+            color: #202124;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .delete-calendar-item .event-badge {
+            font-size: 11px;
+            background: #ea4335;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+
+        .btn-delete {
+            width: 100%;
+            padding: 10px;
+            background: #ea4335;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: #c5221f;
+        }
+
+        .btn-delete:disabled {
+            background: #dadce0;
+            cursor: not-allowed;
+        }
+
+        .btn-reload-list {
+            padding: 5px 12px;
+            background: transparent;
+            border: 1px solid #dadce0;
+            border-radius: 12px;
+            color: #5f6368;
+            font-size: 11px;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+
+        .btn-reload-list:hover {
+            background: #f1f3f4;
+        }
+
+        /* Confirm Dialog Overlay */
+        .confirm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confirm-overlay.show {
+            display: flex;
+        }
+
+        .confirm-dialog {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            width: 300px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            animation: popIn 0.2s;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .confirm-dialog h4 {
+            margin: 0 0 8px 0;
+            color: #c5221f;
+            font-size: 15px;
+        }
+
+        .confirm-dialog p {
+            font-size: 13px;
+            color: #5f6368;
+            margin: 0 0 12px 0;
+            line-height: 1.5;
+        }
+
+        .confirm-list {
+            background: #fce8e6;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 16px;
+            font-size: 12px;
+            color: #c5221f;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .confirm-list li {
+            margin: 4px 0;
+            list-style: disc;
+            margin-left: 16px;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .confirm-actions button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel-confirm {
+            background: #f1f3f4;
+            color: #202124;
+        }
+
+        .btn-cancel-confirm:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-confirm-delete {
+            background: #ea4335;
+            color: white;
+        }
+
+        .btn-confirm-delete:hover {
+            background: #c5221f;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>📅 Trích xuất Calendar</h3>
+
+    <!-- Calendar Multi-Select -->
+    <div class="form-group">
+        <label>Chọn các lịch cần trích xuất:</label>
+        <div id="selectedCount" class="selected-count">Đã chọn: 0 lịch</div>
+        <button class="select-all-btn" onclick="toggleSelectAll()">
+            Chọn tất cả
+        </button>
+        <div id="calendarList" class="calendar-section">
+            <div style="text-align: center; color: #5f6368">
+                ⏳ Đang tải danh sách lịch...
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Date Select -->
+    <div class="quick-select">
+        <label>Chọn nhanh khoảng thời gian:</label>
+        <div class="quick-buttons">
+            <button class="quick-btn" onclick="setDateRange('today')">
+                Hôm nay
+            </button>
+            <button class="quick-btn" onclick="setDateRange('thisWeek')">
+                Tuần này
+            </button>
+            <button class="quick-btn" onclick="setDateRange('thisMonth')">
+                Tháng này
+            </button>
+            <button class="quick-btn" onclick="setDateRange('last7')">
+                7 ngày qua
+            </button>
+        </div>
+    </div>
+
+    <!-- Date Inputs -->
+    <div class="date-row">
+        <div class="form-group">
+            <label for="startDate">Từ ngày:</label>
+            <input type="date" id="startDate" />
+        </div>
+        <div class="form-group">
+            <label for="endDate">Đến ngày:</label>
+            <input type="date" id="endDate" />
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <button id="btnExport" class="btn-primary" onclick="runMultiExport()" disabled>
+        📊 Trích xuất ra Sheets
+    </button>
+
+    <button class="btn-secondary" onclick="previewMultiEvents()">
+        👁️ Xem trước số lượng sự kiện
+    </button>
+
+    <button id="btnSync" class="btn-sync" onclick="syncNow()" disabled>
+        🔄 Đồng bộ sự kiện hôm nay
+    </button>
+    <p class="help-text">
+        * Tất cả dữ liệu sẽ được ghi vào sheet <strong>"CalendarData"</strong> duy nhất. Sự kiện đã tồn tại sẽ không bị
+        trùng lặp.
+    </p>
+
+    <div id="status"></div>
+
+    <div id="configInfo" class="config-info">
+        <strong>📌 Sheet dữ liệu:</strong><br />
+        <span id="configDetails"></span>
+    </div>
+
+    <!-- Delete Section -->
+    <hr class="section-divider" />
+    <div class="section-toggle" id="deleteSectionToggle" onclick="toggleDeleteSection()">
+        <h4>🗑️ Quản lý dữ liệu trong sheet</h4>
+        <span class="toggle-icon">▼</span>
+    </div>
+    <div class="delete-section-body" id="deleteSectionBody">
+        <p class="help-text" style="margin-bottom:8px;">
+            Chọn các lịch muốn xóa dữ liệu khỏi sheet <strong>CalendarData</strong>:
+        </p>
+        <button class="btn-reload-list" onclick="loadCalendarsForDelete()">&#x21bb; Tải lại danh sách</button>
+        <div id="deleteCalendarList" class="delete-list">
+            <div style="text-align:center; color:#5f6368; font-size:12px;">⏳ Nhấn "↻ Tải lại" để xem...</div>
+        </div>
+        <div id="deleteSelectedCount" style="font-size:12px; color:#c5221f; font-weight:500; margin-bottom:8px;">Chưa
+            chọn lịch nào</div>
+        <button id="btnDelete" class="btn-delete" onclick="confirmDelete()" disabled>
+            🗑️ Xóa dữ liệu đã chọn
+        </button>
+    </div>
+
+    <!-- Confirm Dialog Overlay -->
+    <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-dialog">
+            <h4>⚠️ Xác nhận xóa</h4>
+            <p>Bạn sắp xóa toàn bộ dữ liệu của các lịch sau khỏi sheet <strong>CalendarData</strong>. Hành động này
+                không thể hoàn tác!</p>
+            <ul class="confirm-list" id="confirmList"></ul>
+            <div class="confirm-actions">
+                <button class="btn-cancel-confirm" onclick="closeConfirm()">Hủy</button>
+                <button class="btn-confirm-delete" id="btnConfirmDelete" onclick="executeDelete()">Xóa ngay</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var allCalendars = [];
+        var selectAllState = false;
+
+        // Load calendars on page load
+        window.onload = function () {
+            setDateRange("today");
+            loadCalendars();
+            checkExistingConfig();
+        };
+
+        function loadCalendars() {
+            google.script.run
+                .withSuccessHandler(function (data) {
+                    allCalendars = [];
+                    var container = document.getElementById("calendarList");
+                    container.innerHTML = "";
+
+                    // My Calendars
+                    if (data.my.length > 0) {
+                        container.innerHTML +=
+                            '<div class="calendar-group-title">📁 Lịch của tôi</div>';
+                        data.my.forEach(function (cal, index) {
+                            allCalendars.push(cal);
+                            container.innerHTML += createCalendarItem(
+                                cal,
+                                "my_" + index,
+                            );
+                        });
+                    }
+
+                    // Other Calendars
+                    if (data.other.length > 0) {
+                        container.innerHTML +=
+                            '<div class="calendar-group-title">👥 Lịch khác</div>';
+                        data.other.forEach(function (cal, index) {
+                            allCalendars.push(cal);
+                            container.innerHTML += createCalendarItem(
+                                cal,
+                                "other_" + index,
+                            );
+                        });
+                    }
+
+                    // Email Calendars (lịch từ email được config)
+                    if (data.email && data.email.length > 0) {
+                        container.innerHTML +=
+                            '<div class="calendar-group-title">📧 Lịch từ email khác</div>';
+                        data.email.forEach(function (cal, index) {
+                            allCalendars.push(cal);
+                            container.innerHTML += createCalendarItem(
+                                cal,
+                                "email_" + index,
+                            );
+                        });
+                    }
+
+                    // Add event listeners
+                    document
+                        .querySelectorAll(".calendar-checkbox")
+                        .forEach(function (cb) {
+                            cb.addEventListener(
+                                "change",
+                                updateSelectedCount,
+                            );
+                        });
+
+                    // Đọc cấu hình cũ và tự động tích chọn lại các lịch đã lưu trước đó
+                    google.script.run
+                        .withSuccessHandler(function (config) {
+                            if (config && config.calendarIds && config.calendarIds.length > 0) {
+                                var savedIds = config.calendarIds;
+                                document.querySelectorAll(".calendar-checkbox").forEach(function (cb) {
+                                    var calId = cb.getAttribute("data-calendar-id");
+                                    if (savedIds.indexOf(calId) !== -1) {
+                                        cb.checked = true;
+                                    }
+                                });
+                                updateSelectedCount();
+                            }
+                        })
+                        .getMultiCalendarConfig();
+
+                    updateSelectedCount();
+                })
+                .withFailureHandler(function (error) {
+                    document.getElementById("calendarList").innerHTML =
+                        '<div style="color: #c5221f;">❌ Lỗi: ' +
+                        error.message +
+                        "</div>";
+                })
+                .getGroupedCalendars();
+        }
+
+        function createCalendarItem(cal, id) {
+            return (
+                '<div class="calendar-item" onclick="toggleCheckbox(\'' +
+                id +
+                "')\">" +
+                '<input type="checkbox" class="calendar-checkbox" id="cal_' +
+                id +
+                '" ' +
+                'onclick="event.stopPropagation(); updateSelectedCount();" ' +
+                'data-calendar-id="' +
+                cal.id +
+                '" data-calendar-name="' +
+                cal.name +
+                '">' +
+                '<label for="cal_' +
+                id +
+                '">' +
+                cal.name +
+                "</label>" +
+                "</div>"
+            );
+        }
+
+        function toggleCheckbox(id) {
+            var cb = document.getElementById("cal_" + id);
+            cb.checked = !cb.checked;
+            updateSelectedCount();
+        }
+
+        function toggleSelectAll() {
+            selectAllState = !selectAllState;
+            document
+                .querySelectorAll(".calendar-checkbox")
+                .forEach(function (cb) {
+                    cb.checked = selectAllState;
+                });
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            var selected = document.querySelectorAll(
+                ".calendar-checkbox:checked",
+            ).length;
+            document.getElementById("selectedCount").textContent =
+                "Đã chọn: " + selected + " lịch";
+            document.getElementById("btnExport").disabled = selected === 0;
+        }
+
+        function getSelectedCalendarIds() {
+            var ids = [];
+            document
+                .querySelectorAll(".calendar-checkbox:checked")
+                .forEach(function (cb) {
+                    ids.push(cb.getAttribute("data-calendar-id"));
+                });
+            return ids;
+        }
+
+        function setDateRange(preset) {
+            var today = new Date();
+            var start = new Date();
+            var end = new Date();
+
+            switch (preset) {
+                case "today":
+                    break;
+                case "thisWeek":
+                    var dayOfWeek = today.getDay();
+                    var diff =
+                        today.getDate() -
+                        dayOfWeek +
+                        (dayOfWeek === 0 ? -6 : 1);
+                    start = new Date(today.setDate(diff));
+                    today = new Date();
+                    end = new Date(today.setDate(start.getDate() + 6));
+                    break;
+                case "thisMonth":
+                    start = new Date(
+                        today.getFullYear(),
+                        today.getMonth(),
+                        1,
+                    );
+                    end = new Date(
+                        today.getFullYear(),
+                        today.getMonth() + 1,
+                        0,
+                    );
+                    break;
+                case "last7":
+                    start = new Date(today.setDate(today.getDate() - 7));
+                    end = new Date();
+                    break;
+            }
+
+            document.getElementById("startDate").value =
+                formatDateForInput(start);
+            document.getElementById("endDate").value =
+                formatDateForInput(end);
+        }
+
+        function formatDateForInput(date) {
+            var year = date.getFullYear();
+            var month = String(date.getMonth() + 1).padStart(2, "0");
+            var day = String(date.getDate()).padStart(2, "0");
+            return year + "-" + month + "-" + day;
+        }
+
+        function showStatus(message, type) {
+            var statusDiv = document.getElementById("status");
+            statusDiv.className = type;
+            statusDiv.innerHTML = message;
+        }
+
+        function previewMultiEvents() {
+            var calendarIds = getSelectedCalendarIds();
+            var start = document.getElementById("startDate").value;
+            var end = document.getElementById("endDate").value;
+
+            if (calendarIds.length === 0) {
+                showStatus("Vui lòng chọn ít nhất một lịch!", "error");
+                return;
+            }
+
+            if (!start || !end) {
+                showStatus("Vui lòng chọn khoảng thời gian!", "error");
+                return;
+            }
+
+            showStatus("⏳ Đang kiểm tra...", "loading");
+
+            google.script.run
+                .withSuccessHandler(function (result) {
+                    var details = result.details
+                        .map(function (d) {
+                            return d.name + ": " + d.count;
+                        })
+                        .join("<br/>");
+
+                    showStatus(
+                        "📊 Tổng cộng: <strong>" +
+                        result.total +
+                        "</strong> sự kiện<br/><br/>" +
+                        details,
+                        "success",
+                    );
+                })
+                .withFailureHandler(function (error) {
+                    showStatus("❌ Lỗi: " + error.message, "error");
+                })
+                .countMultiCalendarEvents(calendarIds, start, end);
+        }
+
+        function runMultiExport() {
+            var calendarIds = getSelectedCalendarIds();
+            var start = document.getElementById("startDate").value;
+            var end = document.getElementById("endDate").value;
+            var btn = document.getElementById("btnExport");
+
+            if (calendarIds.length === 0) {
+                showStatus("Vui lòng chọn ít nhất một lịch!", "error");
+                return;
+            }
+
+            if (!start || !end) {
+                showStatus("Vui lòng chọn khoảng thời gian!", "error");
+                return;
+            }
+
+            if (new Date(start) > new Date(end)) {
+                showStatus(
+                    "Ngày bắt đầu phải trước ngày kết thúc!",
+                    "error",
+                );
+                return;
+            }
+
+            showStatus(
+                "⏳ Đang trích xuất dữ liệu từ " +
+                calendarIds.length +
+                " lịch...",
+                "loading",
+            );
+            btn.disabled = true;
+
+            google.script.run
+                .withSuccessHandler(function (message) {
+                    showStatus("✅ " + message, "success");
+                    btn.disabled = false;
+                    document.getElementById("btnSync").disabled = false;
+                    checkExistingConfig();
+                })
+                .withFailureHandler(function (error) {
+                    showStatus("❌ Lỗi: " + error.message, "error");
+                    btn.disabled = false;
+                })
+                .processMultiCalendarToSheet(calendarIds, start, end, {});
+        }
+
+        function syncNow() {
+            var btn = document.getElementById("btnSync");
+            showStatus("⏳ Đang đồng bộ sự kiện mới...", "loading");
+            btn.disabled = true;
+
+            google.script.run
+                .withSuccessHandler(function (result) {
+                    var msg = typeof result === 'string' ? result : result.message;
+                    showStatus("✅ " + msg, "success");
+                    btn.disabled = false;
+                })
+                .withFailureHandler(function (error) {
+                    showStatus("❌ Lỗi: " + error.message, "error");
+                    btn.disabled = false;
+                })
+                .syncMultiCalendarToSheet();
+        }
+
+        function checkExistingConfig() {
+            google.script.run
+                .withSuccessHandler(function (config) {
+                    var infoDiv = document.getElementById("configInfo");
+                    var detailsSpan =
+                        document.getElementById("configDetails");
+
+                    if (
+                        config &&
+                        config.enabled &&
+                        config.calendarIds.length > 0
+                    ) {
+                        detailsSpan.innerHTML =
+                            "Sheet: <strong>CalendarData</strong><br/>" +
+                            "Số lịch đã cấu hình: " +
+                            config.calendarIds.length +
+                            "<br/>" +
+                            "Cập nhật: " +
+                            (config.lastUpdated
+                                ? new Date(
+                                    config.lastUpdated,
+                                ).toLocaleString()
+                                : "N/A");
+                        infoDiv.classList.add("show");
+                        document.getElementById("btnSync").disabled = false;
+                    } else {
+                        infoDiv.classList.remove("show");
+                    }
+                })
+                .withFailureHandler(function (error) {
+                    // Ignore
+                })
+                .getMultiCalendarConfig();
+        }
+
+        // ========== DELETE SECTION ==========
+
+        var pendingDeleteNames = [];
+
+        function toggleDeleteSection() {
+            var toggle = document.getElementById("deleteSectionToggle");
+            var body = document.getElementById("deleteSectionBody");
+            toggle.classList.toggle("open");
+            body.classList.toggle("open");
+            // Tải danh sách khi mở lần đầu
+            if (body.classList.contains("open") &&
+                document.getElementById("deleteCalendarList").children.length <= 1 &&
+                document.getElementById("deleteCalendarList").innerText.indexOf("⏳") !== -1) {
+                loadCalendarsForDelete();
+            }
+        }
+
+        function loadCalendarsForDelete() {
+            var listDiv = document.getElementById("deleteCalendarList");
+            listDiv.innerHTML = '<div style="text-align:center;color:#5f6368;font-size:12px;">⏳ Đang tải danh sách...</div>';
+            google.script.run
+                .withSuccessHandler(function (calendars) {
+                    listDiv.innerHTML = "";
+                    if (!calendars || calendars.length === 0) {
+                        listDiv.innerHTML = '<div style="text-align:center;color:#5f6368;font-size:12px;padding:8px;">Sheet CalendarData chưa có dữ liệu.</div>';
+                        updateDeleteCount();
+                        return;
+                    }
+                    calendars.forEach(function (cal, idx) {
+                        var item = document.createElement("div");
+                        item.className = "delete-calendar-item";
+                        item.setAttribute("onclick", "toggleDeleteCheckbox('del_" + idx + "')");
+                        item.innerHTML =
+                            '<input type="checkbox" class="delete-checkbox" id="del_' + idx + '" ' +
+                            'data-cal-name="' + cal.name.replace(/"/g, '&quot;') + '">'
+                            + '<label for="del_' + idx + '">' + cal.name + '</label>'
+                            + '<span class="event-badge">' + cal.count + ' sự kiện</span>';
+                        listDiv.appendChild(item);
+                    });
+                    document.querySelectorAll(".delete-checkbox").forEach(function (cb) {
+                        cb.addEventListener("change", updateDeleteCount);
+                    });
+                    updateDeleteCount();
+                })
+                .withFailureHandler(function (err) {
+                    listDiv.innerHTML = '<div style="color:#c5221f;font-size:12px;">❌ Lỗi: ' + err.message + '</div>';
+                })
+                .getCalendarsInDataSheet();
+        }
+
+        function toggleDeleteCheckbox(id) {
+            var cb = document.getElementById(id);
+            if (cb) { cb.checked = !cb.checked; updateDeleteCount(); }
+        }
+
+        function updateDeleteCount() {
+            var checked = document.querySelectorAll(".delete-checkbox:checked");
+            var countDiv = document.getElementById("deleteSelectedCount");
+            var btnDel = document.getElementById("btnDelete");
+            if (checked.length === 0) {
+                countDiv.textContent = "Chưa chọn lịch nào";
+                btnDel.disabled = true;
+            } else {
+                countDiv.textContent = "Đã chọn: " + checked.length + " lịch sẽ bị xóa";
+                btnDel.disabled = false;
+            }
+        }
+
+        function confirmDelete() {
+            var checked = document.querySelectorAll(".delete-checkbox:checked");
+            if (checked.length === 0) return;
+
+            pendingDeleteNames = [];
+            var listHtml = "";
+            checked.forEach(function (cb) {
+                var name = cb.getAttribute("data-cal-name");
+                pendingDeleteNames.push(name);
+                // Lấy số sự kiện từ badge cạnh checkbox
+                var badge = cb.parentElement.querySelector(".event-badge");
+                var badgeText = badge ? " (" + badge.textContent + ")" : "";
+                listHtml += '<li>' + name + badgeText + '</li>';
+            });
+
+            document.getElementById("confirmList").innerHTML = listHtml;
+            document.getElementById("confirmOverlay").classList.add("show");
+        }
+
+        function closeConfirm() {
+            document.getElementById("confirmOverlay").classList.remove("show");
+            pendingDeleteNames = [];
+        }
+
+        function executeDelete() {
+            var btn = document.getElementById("btnConfirmDelete");
+            btn.disabled = true;
+            btn.textContent = "⏳ Đang xóa...";
+
+            google.script.run
+                .withSuccessHandler(function (msg) {
+                    closeConfirm();
+                    showStatus("✅ " + msg, "success");
+                    btn.disabled = false;
+                    btn.textContent = "Xóa ngay";
+                    // Tải lại danh sách sau khi xóa
+                    loadCalendarsForDelete();
+                })
+                .withFailureHandler(function (err) {
+                    closeConfirm();
+                    showStatus("❌ Lỗi: " + err.message, "error");
+                    btn.disabled = false;
+                    btn.textContent = "Xóa ngay";
+                })
+                .deleteCalendarsFromSheet(pendingDeleteNames);
+        }
+    </script>
+</body>
+
+</html>

@@ -9,6 +9,10 @@ function onOpen() {
         .addSeparator()
         .addItem('🗑️ Xóa Nhân Sự', 'deleteStaff')
         .addSeparator()
+        .addItem('📅 Cài đặt Trigger thâm niên hàng tháng', 'installMonthlyTrigger')
+        .addSeparator()
+        .addItem('🎂 Cài đặt Trigger Sinh nhật', 'openBirthdayTriggerSettings')
+        .addSeparator()
         .addItem('📖 Hướng dẫn sử dụng', 'showUserGuide')
         .addToUi();
 }

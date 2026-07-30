@@ -4,16 +4,22 @@ function coreSyncData(peopleToUpdate) {
     // 3. CẤU HÌNH CÁC FILE CẦN CẬP NHẬT
     const WT = CONFIG.WORKING_TIME_COLS; // Shortcut
     const UPDATE_TARGETS = [
-        // === TẠM TẮT: File Thưởng Phạt (chưa hoàn thiện giao diện) ===
-        // {
-        //     name: "file thuong phat", fileId: CONFIG.FILES.PENALTY_BONUS, sheetName: "Copy of StaffInformation", isProfileLayout: true,
-        //     mapping: [
-        //         { rOff: 1, cOff: 0, field: "nickName" },
-        //         { rOff: 2, cOff: 0, field: "newName" },
-        //         { rOff: 3, cOff: 0, field: "position" },
-        //         { rOff: 4, cOff: 0, field: "birth" },
-        //     ]
-        // },
+        {
+            name: "file thuong phat", 
+            useActive: true,          // Dùng getActiveSpreadsheet() vì đây là file đang chạy
+            sheetName: "StaffInformation",
+            idColumn: "A",
+            searchField: "id",        // Tìm theo Staff ID (cột A)
+            nameOffset: 1,            // Tên ở cột B (offset +1 từ cột A)
+            extraUpdates: [
+                { colOffset: 2,  field: "nickName" },  // Cột C: Nick Name
+                { colOffset: 3,  field: "position" },  // Cột D: Position
+                { colOffset: 6,  field: "tenure" },    // Cột G: Tenure at ADD
+                { colOffset: 9,  field: "dept" },      // Cột J: Division
+                { colOffset: 10, field: "gender" },    // Cột K: Gender
+                { colOffset: 13, field: "joinDate" },  // Cột N: Date of Entered
+            ]
+        },
         {
             name: "file working time", fileId: CONFIG.FILES.TIMESTAMP, sheetName: "test2",
             idColumn: "J", nameOffset: -8,
@@ -63,7 +69,12 @@ function coreSyncData(peopleToUpdate) {
                 return;
             }
 
-            const targetSS = SpreadsheetApp.openById(target.fileId);
+            const targetSS = (() => {
+                if (target.useActive) {
+                    return SpreadsheetApp.getActiveSpreadsheet();
+                }
+                return SpreadsheetApp.openById(target.fileId);
+            })();
             const targetUrl = (() => {
                 try { return targetSS.getUrl(); } catch (e) { return ""; }
             })();
@@ -295,8 +306,31 @@ function findCompanyInsertRow_(sheet, companyLabel, dataStartRow) {
 // HÀM TIỆN ÍCH: Xác định loại hợp đồng
 // ============================================================
 function getContractType(position, joinDate) {
-    const posUpper = (position || "").toString().toUpperCase();
+    const posUpper = (position || "").toString().toUpperCase().trim();
     if (posUpper === "INTERN") return "Thực Tập";
+
+    // Riêng STAFF xét ngày vào dưới 2 tháng (60 ngày) là Thử Việc
+    if (posUpper === "STAFF") {
+        if (joinDate instanceof Date) {
+            const today = new Date();
+            const msPerDay = 1000 * 60 * 60 * 24;
+            const diffDays = (today.getTime() - joinDate.getTime()) / msPerDay;
+
+            if (diffDays < 60) {
+                return "Thử Việc";
+            } else if (diffDays <= 365) {
+                return "Chính thức dưới 1 năm";
+            } else {
+                return "Chính thức trên 1 năm";
+            }
+        }
+        return "Chính thức dưới 1 năm"; // Mặc định nếu không có ngày
+    }
+
+    // Các chức vụ khác lấy theo CONFIG.CONTRACT_MAP nếu có
+    if (CONFIG.CONTRACT_MAP && CONFIG.CONTRACT_MAP[posUpper]) {
+        return CONFIG.CONTRACT_MAP[posUpper];
+    }
 
     if (joinDate instanceof Date) {
         const now = new Date();
@@ -382,14 +416,40 @@ function coreSyncBirthdayOnly(peopleToUpdate) {
             const birthParts = extractBirthParts_(person.birth);
             const joinDateText = formatDateDDMMYYYY_(person.joinDate);
 
+            // Xác định loại hợp đồng cho sheet sinh nhật
+            let birthdayContractType = person.contractType || "";
+            if (birthdayContractType.includes("Chính thức")) {
+                birthdayContractType = "Chính thức";
+            }
+
+            // Tính tiền thưởng sinh nhật theo quy tắc mới:
+            // - Chính thức: 500.000
+            // - Thử Việc:   300.000
+            // - Thực Tập (TTS): 1 tràng vỗ tay (0 VNĐ)
+            let bonusAmount = 0;
+            let formattedBonus = "0";
+            if (birthdayContractType === "Chính thức") {
+                bonusAmount = 500000;
+                formattedBonus = bonusAmount.toLocaleString('vi-VN').replace(/,/g, '.');
+            } else if (birthdayContractType === "Thử Việc") {
+                bonusAmount = 300000;
+                formattedBonus = bonusAmount.toLocaleString('vi-VN').replace(/,/g, '.');
+            } else if (birthdayContractType === "Thực Tập") {
+                bonusAmount = 0;
+                formattedBonus = "1 tràng vỗ tay";
+            }
+
+            // Bố cục sinh nhật: A Tên | B Công ty | C Ngày | D Tháng | E Năm | F Hợp đồng | G Ngày vào | H Thưởng | I ID
             const rowData = [
                 displayName,
                 person.company || "",
                 birthParts.day || "",
                 birthParts.month || "",
                 birthParts.year || "",
-                person.contractType || "",
-                joinDateText || ""
+                birthdayContractType,
+                joinDateText || "",
+                formattedBonus,
+                person.id || ""
             ];
 
             const foundRow = existingRowByName[key];

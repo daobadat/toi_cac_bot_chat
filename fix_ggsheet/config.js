@@ -1,18 +1,21 @@
 const CONFIG = {
-    COLS: {
-        STT: 1,       // Cột A: Số thứ tự (23) ← dùng cho Working Time
-        ID: 2,        // Cột B: Mã tổng hợp (VPA.600.STF.05) ← dùng cho Holiday Bonus
-        DEPT: 3,      // Cột C: Phòng ban (Division)
-        NAME: 4,      // Cột D: Tên nhân viên
-        COMPANY: 5,   // Cột E: Công ty
-        POSITION: 6,  // Cột F: Chức vụ (Position)
-        CERTIFICATE: 7,
-        GENDER: 8,
-        PHONE: 9,
-        EMAIL: 10,
-        BIRTH: 11,
-        DATE_ENTERED: 12,
+    STAFF_INFO_SHEET_NAME: "StaffInformation",
+    DATA_START_ROW: 2,        // Header ở dòng 1, data bắt đầu từ dòng 2
+    CHECKBOX_COL: 15,         // Cột O
 
+    COLS: {
+        STT: 1,          // Cột A: Staff ID (dùng làm ID/STT)
+        ID: 1,           // Cột A: Staff ID
+        NAME: 2,         // Cột B: Name
+        NICKNAME: 3,     // Cột C: Nick Name
+        POSITION: 4,     // Cột D: Position
+        DOB: 6,          // Cột F: DOB
+        TENURE: 7,       // Cột G: Tenure at ADD (tự tính)
+        DIVISION: 10,    // Cột J: Division (Phòng ban số)
+        GENDER: 11,      // Cột K: Gender
+        PHONE: 12,       // Cột L: Phone
+        EMAIL: 13,       // Cột M: Email
+        DATE_ENTERED: 14 // Cột N: Date of Entered
     },
 
     // Cấu trúc cột file Working Time (sheet "test2")
@@ -47,26 +50,45 @@ const CONFIG = {
     },
 
     CONTRACT_MAP: {
-    "INTERN": "Thực Tập",
-    "STAFF": "Chính thức dưới 1 năm",
-    "TEAM ASSISTANT": "Chính thức dưới 1 năm",
-    "SUPERVISOR": "Chính thức trên 1 năm",
-    "TEAM LEADER": "Chính thức trên 1 năm",
-    "MANAGER": "Chính thức trên 1 năm",
-    "SITE MANAGER": "Chính thức trên 1 năm",
-    "DEPUTY MANAGER": "Chính thức trên 1 năm",
-    "VICE DIRECTOR": "Chính thức trên 1 năm",
-    "CEO": "Chính thức trên 1 năm",
-    "PRESIDENT - CEO": "Chính thức trên 1 năm",
-    "ARCHITECT": "Chính thức trên 1 năm"
+        "INTERN": "Thực Tập",
+        "STAFF": "Chính thức dưới 1 năm",
+        "TEAM ASSISTANT": "Chính thức dưới 1 năm",
+        "SUPERVISOR": "Chính thức trên 1 năm",
+        "TEAM LEADER": "Chính thức trên 1 năm",
+        "MANAGER": "Chính thức trên 1 năm",
+        "SITE MANAGER": "Chính thức trên 1 năm",
+        "DEPUTY MANAGER": "Chính thức trên 1 năm",
+        "VICE DIRECTOR": "Chính thức trên 1 năm",
+        "CEO": "Chính thức trên 1 năm",
+        "PRESIDENT - CEO": "Chính thức trên 1 năm",
+        "ARCHITECT": "Chính thức trên 1 năm"
     },
 
     // 3. ID của các File 
     FILES: {
-        PENALTY_BONUS: "1Up1DFaOAddIEX_ac-ewJb656P8cWrna8uHk3TuipjVE",
+        // PENALTY_BONUS đã bỏ vì chính là Active Spreadsheet
         ORG_CHART: "1lC2AGWH10r7ZWiFiUiO-uftIPzlMdfQ3L1PaGw34T7w",
         TIMESTAMP: "1ytMbWdEFGrAgyL0xKgp9OzTAOO62Sh7ma1WSOlFK2m4",
         HOLIDAY_BONUS: "1yBhumEphvpVI46NCTs4mdEM-MVUXxkAI2sfcLs03rc8"
-        
+    },
+
+    // 4. Cấu hình Birthday Notification
+    BIRTHDAY: {
+        PROP_RECIPIENTS: "birthdayRecipients",
+        PROP_HOUR: "birthdayHour",
+        PROP_LAST_SENT_DATE: "birthdayLastSentDate"
     }
 };
+
+/**
+ * Suy ra tên Công ty (ADD/VPA) từ Division (phòng ban số)
+ * @param {string|number} division
+ * @returns {string} "VPA" hoặc "ADD"
+ */
+function getCompanyFromDivision(division) {
+    const d = String(division || "").trim().toLowerCase();
+    if (d === "600" || d === "600t" || d === "600c") {
+        return "VPA";
+    }
+    return "ADD";
+}

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: Arial, sans-serif; background:#f8f9fb; padding:20px; color:#222; }
+    h2 { margin:0 0 6px 0; font-size:18px; }
+    p { margin:0 0 16px 0; color:#666; font-size:12px; }
+    .card { background:#fff; border-radius:10px; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,0.08); margin-bottom:14px; }
+    label { display:block; font-size:13px; margin-bottom:6px; }
+    input, select { width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:8px; font-size:13px; }
+    .hint { font-size:11px; color:#888; margin-top:6px; }
+    .row { display:flex; gap:10px; }
+    .btnRow { display:flex; gap:10px; }
+    button { flex:1; padding:12px 12px; border-radius:10px; border:none; cursor:pointer; font-weight:600; }
+    .primary { background:#3f51b5; color:#fff; }
+    .danger { background:#fff; color:#d32f2f; border:1px solid #ffcdd2; }
+    .test { background:#fff; color:#f57c00; border:1px solid #ffe0b2; }
+    .status { font-size:13px; font-weight:600; }
+    .status.active { color:#2e7d32; }
+    .status.inactive { color:#e65100; }
+    .toast { margin-top:10px; font-size:12px; color:#333; }
+  </style>
+</head>
+<body>
+  <h2>🎂 Thông báo Sinh nhật</h2>
+  <p>Trigger chạy mỗi ngày, nếu có sinh nhật hôm nay sẽ gửi email thông báo.</p>
+
+  <div class="card">
+    <div class="status inactive" id="statusText">Đang tải...</div>
+    <div class="hint" id="statusHint"></div>
+  </div>
+
+  <div class="card">
+    <label for="recipients">Email nhận (nhiều email ngăn cách dấu phẩy)</label>
+    <input id="recipients" placeholder="vd: hr@add-group.net, manager@add-group.net" />
+    <div class="hint">Hệ thống luôn gửi kèm 800@add-group.net và lookingboy2003@gmail.com.</div>
+  </div>
+
+  <div class="card">
+    <label for="hour">Giờ chạy</label>
+    <select id="hour">
+      <option value="5">5:00 - 6:00</option>
+      <option value="6">6:00 - 7:00</option>
+      <option value="7">7:00 - 8:00</option>
+      <option value="8" selected>8:00 - 9:00</option>
+      <option value="9">9:00 - 10:00</option>
+      <option value="10">10:00 - 11:00</option>
+      <option value="11">11:00 - 12:00</option>
+    </select>
+    <div class="hint">Google Apps Script sẽ chạy ngẫu nhiên trong khoảng 1 tiếng.</div>
+  </div>
+
+  <button class="test" onclick="runTest()">📧 Chạy thử & Gửi email ngay</button>
+  <div style="height:10px"></div>
+  <div class="btnRow">
+    <button class="primary" onclick="install()">▶️ Kích hoạt / Cập nhật</button>
+    <button class="danger" onclick="remove()">⏹️ Tắt Trigger</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    function setToast(msg) {
+      document.getElementById("toast").textContent = msg || "";
+    }
+
+    function updateUI(status) {
+      var st = document.getElementById("statusText");
+      var hint = document.getElementById("statusHint");
+      if (status.isActive) {
+        st.className = "status active";
+        st.textContent = "✅ Đang hoạt động";
+        hint.textContent = "Chạy lúc " + status.hour + ":00 - " + (parseInt(status.hour) + 1) + ":00";
+      } else {
+        st.className = "status inactive";
+        st.textContent = "⏸️ Chưa kích hoạt";
+        hint.textContent = "";
+      }
+      document.getElementById("hour").value = status.hour;
+      document.getElementById("recipients").value = status.recipients || "";
+    }
+
+    window.onload = function() {
+      google.script.run
+        .withSuccessHandler(updateUI)
+        .withFailureHandler(function(e){ setToast("Lỗi tải: " + e.message); })
+        .getBirthdayTriggerStatus();
+    }
+
+    function install() {
+      setToast("Đang cài...");
+      var hour = parseInt(document.getElementById("hour").value);
+      var recipients = document.getElementById("recipients").value;
+      google.script.run
+        .withSuccessHandler(function(result){
+          setToast(result.message);
+          updateUI(result.status);
+        })
+        .withFailureHandler(function(e){ setToast("Lỗi: " + e.message); })
+        .installBirthdayTriggerWithHour(hour, recipients);
+    }
+
+    function remove() {
+      setToast("Đang tắt...");
+      google.script.run
+        .withSuccessHandler(function(result){
+          setToast(result.message);
+          updateUI(result.status);
+        })
+        .withFailureHandler(function(e){ setToast("Lỗi: " + e.message); })
+        .removeBirthdayTriggerFromUI();
+    }
+
+    function runTest() {
+      setToast("Đang chạy thử...");
+      google.script.run
+        .withSuccessHandler(function(msg){ setToast(msg); })
+        .withFailureHandler(function(e){ setToast("Lỗi: " + e.message); })
+        .runBirthdayNotifyFromUI();
+    }
+  </script>
+</body>
+</html>

@@ -3,16 +3,21 @@ function updateBatchEmployees() {
     SpreadsheetApp.flush();
 
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName("staff info");
+    const sheet = ss.getSheetByName(CONFIG.STAFF_INFO_SHEET_NAME);
 
-    const CHECKBOX_COL = 14;
-    // -------------------------------------------------------------
+    if (!sheet) {
+        SpreadsheetApp.getUi().alert(`❌ Không tìm thấy sheet "${CONFIG.STAFF_INFO_SHEET_NAME}".`);
+        return;
+    }
+
+    const CHECKBOX_COL = CONFIG.CHECKBOX_COL; // Cột O = 15
+    const DATA_START = CONFIG.DATA_START_ROW; // Dòng 2
 
     const lastRow = sheet.getLastRow();
-    if (lastRow < 3) return; // Nếu bảng chưa có dữ liệu thì dừng luôn
+    if (lastRow < DATA_START) return;
 
     // 1. LẤY DANH SÁCH CÁC DÒNG ĐƯỢC TÍCH CHECKBOX
-    const checkboxRange = sheet.getRange(3, CHECKBOX_COL, lastRow - 2, 1);
+    const checkboxRange = sheet.getRange(DATA_START, CHECKBOX_COL, lastRow - DATA_START + 1, 1);
     const checkboxValues = checkboxRange.getValues();
     let selectedRows = [];
 
@@ -21,7 +26,7 @@ function updateBatchEmployees() {
         const val = checkboxValues[i][0];
         // Nới lỏng điều kiện: Nhận cả true (logic) và "TRUE" (chữ)
         if (val === true || val === "TRUE" || val === "true" || val == true) {
-            selectedRows.push(i + 3);
+            selectedRows.push(i + DATA_START);
         }
     }
 
@@ -34,7 +39,7 @@ function updateBatchEmployees() {
     const startResponse = ui.alert(
         "XÁC NHẬN ĐỒNG BỘ",
         
-        `Bạn đã chọn ${selectedRows.length} nhân sự.\n\nHệ thống sẽ cập nhật thông tin sang các file:\n  • Working Time\n  • Thưởng Lễ\n  • Sinh nhật (trong file Thưởng Lễ)\n\nTiếp tục?`,
+        `Bạn đã chọn ${selectedRows.length} nhân sự.\n\nHệ thống sẽ cập nhật thông tin sang các file:\n  • Working Time\n  • Thưởng Lễ, Sinh nhật\n  • Penalty&Bonus\n\nTiếp tục?`,
         ui.ButtonSet.YES_NO
     );
 
@@ -48,60 +53,48 @@ function updateBatchEmployees() {
     for (let i = 0; i < selectedRows.length; i++) {
         const row = selectedRows[i];
 
-        // Đọc dữ liệu dựa theo config của bạn
-        const stt = sheet.getRange(row,CONFIG.COLS.STT).getValue();
-        const id = sheet.getRange(row, CONFIG.COLS.ID).getValue();
-        const newName = sheet.getRange(row, CONFIG.COLS.NAME).getValue();
-        const dept = sheet.getRange(row, CONFIG.COLS.DEPT).getValue().toString().trim();
-        const birth = sheet.getRange(row, CONFIG.COLS.BIRTH).getValue();
-        const position = sheet.getRange(row, CONFIG.COLS.POSITION || 4).getValue();
-        const joinDate = sheet.getRange(row, CONFIG.COLS.DATE_ENTERED).getValue();
-        const gender = sheet.getRange(row, CONFIG.COLS.GENDER).getValue();
-        const company = sheet.getRange(row, CONFIG.COLS.COMPANY).getValue().toString().trim();
+        // Đọc dữ liệu dựa theo cấu trúc cột mới của StaffInformation
+        const stt      = sheet.getRange(row, CONFIG.COLS.STT).getValue();
+        const id       = sheet.getRange(row, CONFIG.COLS.ID).getValue();
+        const newName  = sheet.getRange(row, CONFIG.COLS.NAME).getValue();
+        const division = sheet.getRange(row, CONFIG.COLS.DIVISION).getValue().toString().trim(); // Cột J
+        const position = sheet.getRange(row, CONFIG.COLS.POSITION).getValue();
+        const joinDate = sheet.getRange(row, CONFIG.COLS.DATE_ENTERED).getValue();               // Cột N
+        const gender   = sheet.getRange(row, CONFIG.COLS.GENDER).getValue();                     // Cột K
+        const birth    = sheet.getRange(row, CONFIG.COLS.DOB).getValue();                        // Cột F
+
+        // Suy company từ division
+        const company = getCompanyFromDivision(division);
+        const dept = division;
 
         if (!id || id === "") {
             ui.alert(`⚠️ Bỏ qua dòng ${row} vì không có ID.`);
             continue;
         }
 
-        const lastName = getLastName(newName);
-        const nickName = `${lastName}.${dept}`;
+        const nickName = getEmployeeNickname(newName, dept, position);
+        const tenure = calculateTenure(joinDate);
 
-        // === TẠM TẮT: Prompt hỏi Tên Cũ cho Sơ đồ tổ chức (ORG_CHART đã tắt) ===
-        // const promptResponse = ui.prompt(
-        //     `Nhân sự ${i + 1}/${selectedRows.length}: ${newName}`,
-        //     `Nhập TÊN CŨ trên "Sơ đồ tổ chức" của ID [${id}].\n\n⚠️ Nếu bỏ trống ô này, hệ thống sẽ CHỈ cập nhật các file khác, KHÔNG cập nhật sơ đồ.`,
-        //     ui.ButtonSet.OK_CANCEL
-        // );
-        // if (promptResponse.getSelectedButton() !== ui.Button.OK) {
-        //     ui.alert("Đã hủy quá trình đồng bộ.");
-        //     return;
-        // }
-        // const oldName = promptResponse.getResponseText().trim();
-        // Thay đoạn tạo employeeCode cũ bằng đoạn này:
         const posAbbr = CONFIG.POS_MAP[(position || "").toString().toUpperCase().trim()] || "STF";
         const cleanCompany = company.toString().trim().toUpperCase();
         const cleanDept = dept.toString().trim();
         const cleanPos = (posAbbr || "STF").toString().trim().toUpperCase();
-        const cleanId = String(id).trim().padStart(2, '0');
-        const employeeCode = `${cleanCompany}.${cleanDept}.${cleanPos}.${cleanId}`;
-
         const contractType = getContractType(position, joinDate);
-        Logger.log("Mã ID vừa tạo để đi tìm là: [" + employeeCode + "]");
+        Logger.log("ID đang dùng để đi tìm: [" + id + "]");
         peopleToUpdate.push({
             contractType: contractType,
             stt: stt,
             id: id,
             newName: newName,  
             nickName: nickName,
-            birth: birth,
+            tenure: tenure,
             position: position,
             joinDate: joinDate,
-            employeeCode: employeeCode,
             gender: gender,
             company: company,
             companyLabel: "Bộ phận: " + company.toUpperCase(),
-            dept: dept
+            dept: dept,          // Division (phòng ban số)
+            birth: birth
         });
     }
     
@@ -145,12 +138,13 @@ function updateBirthdayOnly() {
     SpreadsheetApp.flush();
 
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName("staff info");
-    const CHECKBOX_COL = 14;
+    const sheet = ss.getSheetByName(CONFIG.STAFF_INFO_SHEET_NAME);
+    const CHECKBOX_COL = CONFIG.CHECKBOX_COL;
+    const DATA_START = CONFIG.DATA_START_ROW;
     const lastRow = sheet.getLastRow();
-    if (lastRow < 3) return;
+    if (lastRow < DATA_START) return;
 
-    const checkboxRange = sheet.getRange(3, CHECKBOX_COL, lastRow - 2, 1);
+    const checkboxRange = sheet.getRange(DATA_START, CHECKBOX_COL, lastRow - DATA_START + 1, 1);
     const checkboxValues = checkboxRange.getValues();
     const selectedRows = [];
 
@@ -180,13 +174,13 @@ function updateBirthdayOnly() {
     const peopleToUpdate = [];
     for (let i = 0; i < selectedRows.length; i++) {
         const row = selectedRows[i];
-        const id = sheet.getRange(row, CONFIG.COLS.ID).getValue();
-        const newName = sheet.getRange(row, CONFIG.COLS.NAME).getValue();
-        const dept = sheet.getRange(row, CONFIG.COLS.DEPT).getValue().toString().trim();
-        const birth = sheet.getRange(row, CONFIG.COLS.BIRTH).getValue();
-        const position = sheet.getRange(row, CONFIG.COLS.POSITION || 4).getValue();
+        const id       = sheet.getRange(row, CONFIG.COLS.ID).getValue();
+        const newName  = sheet.getRange(row, CONFIG.COLS.NAME).getValue();
+        const division = sheet.getRange(row, CONFIG.COLS.DIVISION).getValue().toString().trim(); // Cột J
+        const position = sheet.getRange(row, CONFIG.COLS.POSITION).getValue();
         const joinDate = sheet.getRange(row, CONFIG.COLS.DATE_ENTERED).getValue();
-        const company = sheet.getRange(row, CONFIG.COLS.COMPANY).getValue().toString().trim();
+        const company  = getCompanyFromDivision(division);
+        const birth    = sheet.getRange(row, CONFIG.COLS.DOB).getValue();
 
         if (!newName || String(newName).trim() === "") {
             continue;
@@ -196,12 +190,12 @@ function updateBirthdayOnly() {
         peopleToUpdate.push({
             id: id,
             newName: newName,
-            dept: dept,
-            birth: birth,
+            dept: division,
             position: position,
             joinDate: joinDate,
             company: company,
-            contractType: contractType
+            contractType: contractType,
+            birth: birth
         });
     }
 
@@ -220,20 +214,22 @@ function updateBirthdayOnly() {
 
 function debugFinder() {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName("staff info");
+    const sheet = ss.getSheetByName(CONFIG.STAFF_INFO_SHEET_NAME);
     
-    // Đọc dòng 25 (Nguyễn Anh Vũ) — đổi số nếu cần
-    const row = 13
-    const id = sheet.getRange(row, CONFIG.COLS.ID).getValue();
-    const name = sheet.getRange(row, CONFIG.COLS.NAME).getValue();
+    // Đọc dòng test — đổi số nếu cần
+    const row = 3;
+    const id       = sheet.getRange(row, CONFIG.COLS.ID).getValue();
+    const name     = sheet.getRange(row, CONFIG.COLS.NAME).getValue();
     const position = sheet.getRange(row, CONFIG.COLS.POSITION).getValue();
-    const company = sheet.getRange(row, CONFIG.COLS.COMPANY).getValue();
+    const division = sheet.getRange(row, CONFIG.COLS.DIVISION).getValue();
+    const company  = getCompanyFromDivision(division);
     
     Logger.log("=== STAFF INFO ===");
     Logger.log("ID: [" + id + "] type: " + typeof id);
     Logger.log("Name: [" + name + "]");
     Logger.log("Position: [" + position + "]");
-    Logger.log("Company: [" + company + "]");
+    Logger.log("Division: [" + division + "] → Company: [" + company + "]");
+
     
     
     // Test tìm trong Holiday Bonus
@@ -248,5 +244,85 @@ function debugFinder() {
     if (hbFinder.length > 0) {
         Logger.log("Dòng: " + hbFinder[0].getRow());
     }
+}
+
+/**
+ * Hàm trigger chạy hàng tháng để cập nhật thâm niên (Tenure at ADD)
+ * Công thức: currentYear - joinedYear (năm hiện tại - năm vào công ty)
+ */
+function updateTenureMonthly() {
+  try {
+    // Dùng Active Spreadsheet vì script chạy từ file Penalty/Bonus Summary
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const staffInfoSheet = ss.getSheetByName(CONFIG.STAFF_INFO_SHEET_NAME);
+    if (!staffInfoSheet) {
+      Logger.log(`Error: '${CONFIG.STAFF_INFO_SHEET_NAME}' sheet not found.`);
+      return;
+    }
+    
+    const DATA_START = CONFIG.DATA_START_ROW;
+    const lastRowMaster = staffInfoSheet.getLastRow();
+    if (lastRowMaster < DATA_START) return;
+    
+    // Đọc họ tên (cột B) và ngày vào công ty (cột N) từ StaffInformation
+    const numCols = CONFIG.COLS.DATE_ENTERED; // đọc đến cột N = 14
+    const masterData = staffInfoSheet.getRange(DATA_START, 1, lastRowMaster - DATA_START + 1, numCols).getValues();
+    const tenureMap = {};
+    
+    for (let i = 0; i < masterData.length; i++) {
+      const name     = String(masterData[i][CONFIG.COLS.NAME - 1] || "").trim();         // Cột B
+      const joinDate = masterData[i][CONFIG.COLS.DATE_ENTERED - 1];                     // Cột N
+      if (name) {
+        tenureMap[name.toLowerCase()] = calculateTenure(joinDate);
+      }
+    }
+    
+    // Cập nhật cột G (Tenure at ADD) trực tiếp trên StaffInformation
+    const pbNames = staffInfoSheet.getRange(DATA_START, CONFIG.COLS.NAME, lastRowMaster - DATA_START + 1, 1).getValues();
+    const pbTenuresRange = staffInfoSheet.getRange(DATA_START, CONFIG.COLS.TENURE, lastRowMaster - DATA_START + 1, 1); // Cột G
+    const pbTenures = pbTenuresRange.getValues();
+    
+    let updated = false;
+    for (let i = 0; i < pbNames.length; i++) {
+      const name = String(pbNames[i][0] || "").trim();
+      if (name && name.toLowerCase() in tenureMap) {
+        const calculatedTenure = tenureMap[name.toLowerCase()];
+        if (pbTenures[i][0] !== calculatedTenure) {
+          pbTenures[i][0] = calculatedTenure;
+          updated = true;
+        }
+      }
+    }
+    
+    if (updated) {
+      pbTenuresRange.setValues(pbTenures);
+      Logger.log("Tenures updated successfully.");
+    } else {
+      Logger.log("No tenure updates needed.");
+    }
+    
+  } catch (error) {
+    Logger.log("Error in updateTenureMonthly: " + error.message);
+  }
+}
+
+/**
+ * Hàm đăng ký tự động trigger chạy 1 tháng 1 lần vào ngày 1 hàng tháng lúc 1 giờ sáng
+ */
+function installMonthlyTrigger() {
+  const triggers = ScriptApp.getProjectTriggers();
+  for (let i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === 'updateTenureMonthly') {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
+  
+  ScriptApp.newTrigger('updateTenureMonthly')
+    .timeBased()
+    .onMonthDay(1)
+    .atHour(1)
+    .create();
+  
+  SpreadsheetApp.getUi().alert("✅ Đăng ký trigger cập nhật thâm niên hàng tháng thành công!");
 }
 

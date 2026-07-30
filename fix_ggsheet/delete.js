@@ -10,26 +10,32 @@
  */
 
 function deleteStaff() {
-    SpreadsheetApp.flush(); // Ép lưu checkbox trước khi đọc
+    SpreadsheetApp.flush();
     const ui = SpreadsheetApp.getUi();
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName("staff info");
+    const sheet = ss.getSheetByName(CONFIG.STAFF_INFO_SHEET_NAME);
 
-    // 1. LẤY DANH SÁCH DÒNG CẦN XÓA TỪ CHECKBOX
-    const CHECKBOX_COL = 14;
+    if (!sheet) {
+        ui.alert(`❌ Không tìm thấy sheet "${CONFIG.STAFF_INFO_SHEET_NAME}".`);
+        return;
+    }
+
+    // 1. LẤY DANH SÁCH DÒNG CẦN XÓA TỪ CHECKBOX (Cột O = 15)
+    const CHECKBOX_COL = CONFIG.CHECKBOX_COL;
+    const DATA_START = CONFIG.DATA_START_ROW;
     const lastSheetRow = sheet.getLastRow();
 
     let selectedRows = [];
     let checkboxRange = null;
 
-    if (lastSheetRow >= 3) {
-        checkboxRange = sheet.getRange(3, CHECKBOX_COL, lastSheetRow - 2, 1);
+    if (lastSheetRow >= DATA_START) {
+        checkboxRange = sheet.getRange(DATA_START, CHECKBOX_COL, lastSheetRow - DATA_START + 1, 1);
         const checkboxValues = checkboxRange.getValues();
 
         for (let i = 0; i < checkboxValues.length; i++) {
             const val = checkboxValues[i][0];
             if (val === true || val === "TRUE" || val === "true" || val == true) {
-                selectedRows.push(i + 3);
+                selectedRows.push(i + DATA_START);
             }
         }
     }
@@ -37,13 +43,14 @@ function deleteStaff() {
     // Fallback: nếu không tick checkbox → lấy dòng đang click
     if (selectedRows.length === 0) {
         const activeRow = sheet.getActiveCell().getRow();
-        if (activeRow >= 3) {
+        if (activeRow >= DATA_START) {
             selectedRows.push(activeRow);
         } else {
-            ui.alert("⚠️ Hãy tích chọn (☑️) vào ô Checkbox (cột N)\nhoặc bấm vào dòng của nhân viên cần xóa!");
+            ui.alert("⚠️ Hãy tích chọn (☑️) vào ô Checkbox (cột O)\nhoặc bấm vào dòng của nhân viên cần xóa!");
             return;
         }
     }
+
 
     // 2. THU THẬP THÔNG TIN CỦA NHỮNG NGƯỜI SẼ BỊ XÓA
     let peopleToDelete = [];
@@ -70,8 +77,8 @@ function deleteStaff() {
         `Hệ thống sẽ xóa dữ liệu khỏi:\n` +
         `  • Staff Info (file chính)\n` +
         `  • Working Time\n` +
-        `  • Thưởng Lễ (New Year Eve, 2/9, Labour Day)\n` +
-        `  • Sinh nhật\n\n` +
+        `  • Thưởng Lễ, Sinh nhật\n` +
+        `  • Penalty&Bonus\n\n` +
         `⛔ Hành động này KHÔNG THỂ hoàn tác!`,
         ui.ButtonSet.YES_NO
     );
@@ -170,6 +177,22 @@ function deleteStaff() {
         } catch (e) {
             logForPerson += `\n   • Thưởng Lễ: ❌ Lỗi (${e.message})`;
         }
+
+        // --- Penalty/Bonus (StaffInformation) --- xóa theo Staff ID (cột A)
+        try {
+            const pbSS = SpreadsheetApp.getActiveSpreadsheet(); // Đây chính là file đang chạy
+            const pbSheet = pbSS.getSheetByName("StaffInformation") || pbSS.getSheetByName("Staff Information");
+            if (pbSheet) {
+                // Xóa theo Staff ID (cột A) — chính xác hơn xóa theo tên
+                const deletedCount = deleteRowsById_(pbSheet, "A", person.id);
+                logForPerson += `\n   • Penalty/Bonus: ✅ Đã xóa ${deletedCount} dòng.`;
+            } else {
+                logForPerson += `\n   • Penalty/Bonus: ⚠️ Không tìm thấy sheet StaffInformation.`;
+            }
+        } catch (e) {
+            logForPerson += `\n   • Penalty/Bonus: ❌ Lỗi (${e.message})`;
+        }
+
 
         globalLogMsg.push(logForPerson);
     }
