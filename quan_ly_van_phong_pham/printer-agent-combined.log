@@ -1,0 +1,171 @@
+[2026-08-17T04:22:51.664Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-17T04:22:52.283Z] INFO: Parse thành công: {"totalCounter":0,"fullColorSimplex":0,"fullColorDuplex":0,"bwSimplex":0,"bwDuplex":0,"singleColorSimplex":0,"singleColorDuplex":0,"twoColorSimplex":0,"twoColorDuplex":0}
+[2026-08-17T04:22:55.365Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-17T04:22:48.219Z
+[2026-08-17T04:26:53.246Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-17T04:26:53.790Z] INFO: Parse thành công: {"totalCounter":0,"fullColorSimplex":0,"fullColorDuplex":0,"bwSimplex":0,"bwDuplex":0,"singleColorSimplex":0,"singleColorDuplex":0,"twoColorSimplex":0,"twoColorDuplex":0}
+[2026-08-17T04:26:56.303Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-17T04:26:49.423Z
+[2026-08-17T04:27:32.140Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-17T04:27:32.625Z] INFO: Parse thành công: {"totalCounter":0,"fullColorSimplex":0,"fullColorDuplex":0,"bwSimplex":0,"bwDuplex":0,"singleColorSimplex":0,"singleColorDuplex":0,"twoColorSimplex":0,"twoColorDuplex":0}
+[2026-08-17T04:27:35.855Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-17T04:27:28.849Z
+[2026-08-17T04:29:37.350Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-17T04:29:37.874Z] INFO: Parse thành công: {"totalCounter":1270842,"fullColorSimplex":2541684,"fullColorDuplex":0,"bwSimplex":2541684,"bwDuplex":0,"singleColorSimplex":2541684,"singleColorDuplex":0,"twoColorSimplex":2541684,"twoColorDuplex":0}
+[2026-08-17T04:29:42.001Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-17T04:29:34.693Z
+[2026-08-17T04:36:13.353Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-17T04:36:13.886Z] INFO: Parse thành công: {"totalCounter":1270842,"fullColorOthersSimplex":1270842,"bwOthersSimplex":1270842}
+[2026-08-17T04:36:17.517Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-17T04:36:10.449Z
+[2026-08-17T04:38:28.225Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-17T04:38:28.744Z] INFO: Trích xuất dữ liệu thành công -> Total: 1270842, FullColor Others Simplex: 237458, BW Others Simplex: 432355
+[2026-08-17T04:38:28.744Z] INFO: Parse thành công: {"totalCounter":1270842,"fullColorOthersSimplex":237458,"bwOthersSimplex":432355}
+[2026-08-17T04:38:32.078Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-17T04:38:24.579Z
+[2026-08-17T09:17:46.034Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-17T09:17:46.511Z] INFO: Trích xuất thành công -> Total: 1270976, FC Other1: 237458, FC Other2: 141684, BW Other1: 432383, BW Other2: 111458
+[2026-08-17T09:17:46.512Z] INFO: Parse thành công: {"totalCounter":1270976,"fullColorOther1":237458,"fullColorOther2":141684,"bwOther1":432383,"bwOther2":111458}
+[2026-08-17T09:17:51.255Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-17T09:17:43.387Z
+[2026-08-17T09:58:53.819Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-17T09:58:54.355Z] INFO: Trích xuất thành công -> Total: 1270995, Copier FC: 141114, Copier BW: 335532, Printer FC: 414695, Printer BW: 374283
+[2026-08-17T09:58:54.356Z] INFO: Parse thành công: {"totalCounter":1270995,"copierFullColor":141114,"copierBW":335532,"printerFullColor":414695,"printerBW":374283}
+[2026-08-17T09:58:57.313Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-17T09:58:49.943Z
+[2026-08-17T09:59:07.134Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-17T09:59:07.648Z] INFO: Trích xuất thành công -> Total: 1270995, Copier FC: 141114, Copier BW: 335532, Printer FC: 414695, Printer BW: 374283
+[2026-08-17T09:59:07.648Z] INFO: Parse thành công: {"totalCounter":1270995,"copierFullColor":141114,"copierBW":335532,"printerFullColor":414695,"printerBW":374283}
+[2026-08-17T09:59:10.882Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-17T09:59:03.584Z
+[2026-08-18T03:07:08.186Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-18T03:07:08.702Z] INFO: Trích xuất thành công -> Total: 1271057 | Copier [FC: 141114, BW: 335534, Single: 7, Two: 0] | Printer [FC: 414717, BW: 374321, Single: 9, Two: 5355]
+[2026-08-18T03:07:08.702Z] INFO: Parse thành công: {"totalCounter":1271057,"copierFullColor":141114,"copierBW":335534,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414717,"printerBW":374321,"printerSingleColor":9,"printerTwoColor":5355}
+[2026-08-18T03:07:11.747Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-18T03:07:09.639Z
+[2026-08-18T03:07:19.435Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-18T03:07:20.045Z] INFO: Trích xuất thành công -> Total: 1271057 | Copier [FC: 141114, BW: 335534, Single: 7, Two: 0] | Printer [FC: 414717, BW: 374321, Single: 9, Two: 5355]
+[2026-08-18T03:07:20.046Z] INFO: Parse thành công: {"totalCounter":1271057,"copierFullColor":141114,"copierBW":335534,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414717,"printerBW":374321,"printerSingleColor":9,"printerTwoColor":5355}
+[2026-08-18T03:07:23.902Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-18T03:07:21.701Z
+[2026-08-18T03:13:37.951Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-18T03:13:38.487Z] INFO: Trích xuất thành công -> Copier [FC: 141114, BW: 335535, Single: 7, Two: 0] | Printer [FC: 414717, BW: 374324, Single: 9, Two: 5355]
+[2026-08-18T03:13:38.487Z] INFO: Parse thành công: {"copierFullColor":141114,"copierBW":335535,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414717,"printerBW":374324,"printerSingleColor":9,"printerTwoColor":5355}
+[2026-08-18T03:13:40.934Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-18T03:13:39.091Z
+[2026-08-18T03:13:55.306Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-18T03:13:55.832Z] INFO: Trích xuất thành công -> Copier [FC: 141114, BW: 335535, Single: 7, Two: 0] | Printer [FC: 414717, BW: 374324, Single: 9, Two: 5355]
+[2026-08-18T03:13:55.833Z] INFO: Parse thành công: {"copierFullColor":141114,"copierBW":335535,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414717,"printerBW":374324,"printerSingleColor":9,"printerTwoColor":5355}
+[2026-08-18T03:13:58.900Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-18T03:13:56.902Z
+[2026-08-18T03:14:41.347Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-18T03:14:41.937Z] INFO: Trích xuất thành công -> Copier [FC: 141114, BW: 335535, Single: 7, Two: 0] | Printer [FC: 414717, BW: 374324, Single: 9, Two: 5355]
+[2026-08-18T03:14:41.937Z] INFO: Parse thành công: {"copierFullColor":141114,"copierBW":335535,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414717,"printerBW":374324,"printerSingleColor":9,"printerTwoColor":5355}
+[2026-08-18T03:14:44.909Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-18T03:14:42.639Z
+[2026-08-18T03:18:35.446Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-18T03:18:35.979Z] INFO: Trích xuất thành công -> Copier [FC: 141114, BW: 335535, Single: 7, Two: 0] | Printer [FC: 414717, BW: 374335, Single: 9, Two: 5355]
+[2026-08-18T03:18:35.979Z] INFO: Parse thành công: {"copierFullColor":141114,"copierBW":335535,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414717,"printerBW":374335,"printerSingleColor":9,"printerTwoColor":5355}
+[2026-08-18T03:18:39.131Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-18T03:18:36.854Z
+[2026-08-18T03:19:26.994Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-18T03:19:27.510Z] INFO: Trích xuất thành công -> Copier [FC: 141114, BW: 335535, Single: 7, Two: 0] | Printer [FC: 414717, BW: 374335, Single: 9, Two: 5355]
+[2026-08-18T03:19:27.510Z] INFO: Parse thành công: {"copierFullColor":141114,"copierBW":335535,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414717,"printerBW":374335,"printerSingleColor":9,"printerTwoColor":5355}
+[2026-08-18T03:19:33.636Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-18T03:19:29.030Z
+[2026-08-18T03:21:33.157Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-18T03:21:33.689Z] INFO: Trích xuất thành công -> Copier [FC: 141114, BW: 335535, Single: 7, Two: 0] | Printer [FC: 414717, BW: 374335, Single: 9, Two: 5355]
+[2026-08-18T03:21:33.689Z] INFO: Parse thành công: {"copierFullColor":141114,"copierBW":335535,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414717,"printerBW":374335,"printerSingleColor":9,"printerTwoColor":5355}
+[2026-08-18T03:21:38.101Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-18T03:21:34.941Z
+[2026-08-18T04:04:47.358Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-18T04:04:47.886Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335538, Single: 7, Two: 0] | Printer [FC: 414717, BW: 374339, Single: 9, Two: 5355]
+[2026-08-18T04:04:47.886Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-18T04:04:48.325Z] INFO: Trích xuất mức mực thành công -> Black: 16%, Cyan: 16%, Magenta: 16%, Yellow: 16%
+[2026-08-18T04:04:48.326Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335538,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414717,"printerBW":374339,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":16,"tonerCyan":16,"tonerMagenta":16,"tonerYellow":16,"token":"PrinterToken2026"}
+[2026-08-18T04:04:52.135Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-18T04:04:49.228Z
+[2026-08-18T04:05:24.862Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-18T04:05:25.380Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335538, Single: 7, Two: 0] | Printer [FC: 414717, BW: 374339, Single: 9, Two: 5355]
+[2026-08-18T04:05:25.380Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-18T04:05:25.816Z] INFO: Trích xuất mức mực thành công -> Black: 16%, Cyan: 16%, Magenta: 16%, Yellow: 16%
+[2026-08-18T04:05:25.816Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335538,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414717,"printerBW":374339,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":16,"tonerCyan":16,"tonerMagenta":16,"tonerYellow":16,"token":"PrinterToken2026"}
+[2026-08-18T04:05:28.554Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-18T04:05:26.486Z
+[2026-08-18T04:10:16.291Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-18T04:10:16.807Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335540, Single: 7, Two: 0] | Printer [FC: 414717, BW: 374339, Single: 9, Two: 5355]
+[2026-08-18T04:10:16.808Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-18T04:10:17.243Z] INFO: Trích xuất mức mực thành công -> Black: 16%, Cyan: 16%, Magenta: 16%, Yellow: 16%
+[2026-08-18T04:10:17.243Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335540,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414717,"printerBW":374339,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":16,"tonerCyan":16,"tonerMagenta":16,"tonerYellow":16,"token":"PrinterToken2026"}
+[2026-08-18T04:10:20.453Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-18T04:10:18.225Z
+[2026-08-18T04:21:11.379Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-18T04:21:11.894Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335540, Single: 7, Two: 0] | Printer [FC: 414717, BW: 374339, Single: 9, Two: 5355]
+[2026-08-18T04:21:11.894Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-18T04:21:12.329Z] INFO: Trích xuất mức mực thành công -> Black: 16%, Cyan: 16%, Magenta: 16%, Yellow: 16%
+[2026-08-18T04:21:12.330Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335540,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414717,"printerBW":374339,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":16,"tonerCyan":16,"tonerMagenta":16,"tonerYellow":16,"token":"PrinterToken2026"}
+[2026-08-18T04:21:16.475Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-18T04:21:13.666Z
+[2026-08-18T04:23:13.467Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-18T04:23:14.005Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335540, Single: 7, Two: 0] | Printer [FC: 414717, BW: 374339, Single: 9, Two: 5355]
+[2026-08-18T04:23:14.006Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-18T04:23:14.498Z] INFO: Trích xuất mức mực thành công -> Black: 50%, Cyan: 70%, Magenta: 100%, Yellow: 60%
+[2026-08-18T04:23:14.498Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335540,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414717,"printerBW":374339,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":50,"tonerCyan":70,"tonerMagenta":100,"tonerYellow":60,"token":"PrinterToken2026"}
+[2026-08-18T04:23:18.857Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-18T04:23:15.880Z
+[2026-08-18T04:57:47.282Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-18T04:57:47.802Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335540, Single: 7, Two: 0] | Printer [FC: 414723, BW: 374339, Single: 9, Two: 5355]
+[2026-08-18T04:57:47.802Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-18T04:57:48.253Z] INFO: Trích xuất mức mực thành công -> Black: 50%, Cyan: 70%, Magenta: 100%, Yellow: 60%
+[2026-08-18T04:57:48.253Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335540,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414723,"printerBW":374339,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":50,"tonerCyan":70,"tonerMagenta":100,"tonerYellow":60,"token":"PrinterToken2026"}
+[2026-08-18T04:57:52.549Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-18T04:57:49.383Z
+[2026-08-18T04:58:58.112Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-18T04:58:58.641Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335540, Single: 7, Two: 0] | Printer [FC: 414724, BW: 374339, Single: 9, Two: 5355]
+[2026-08-18T04:58:58.642Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-18T04:58:59.081Z] INFO: Trích xuất mức mực thành công -> Black: 50%, Cyan: 70%, Magenta: 100%, Yellow: 60%
+[2026-08-18T04:58:59.081Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335540,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414724,"printerBW":374339,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":50,"tonerCyan":70,"tonerMagenta":100,"tonerYellow":60,"token":"PrinterToken2026"}
+[2026-08-18T04:59:02.524Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-18T04:58:59.834Z
+[2026-08-19T07:54:43.774Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-19T07:54:44.259Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335555, Single: 7, Two: 0] | Printer [FC: 414765, BW: 374519, Single: 9, Two: 5355]
+[2026-08-19T07:54:44.260Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-19T07:54:44.698Z] INFO: Trích xuất mức mực thành công -> Black: 50%, Cyan: 70%, Magenta: 100%, Yellow: 60%
+[2026-08-19T07:54:44.698Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335555,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414765,"printerBW":374519,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":50,"tonerCyan":70,"tonerMagenta":100,"tonerYellow":60,"token":"PrinterToken2026"}
+[2026-08-19T07:54:48.993Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-19T07:54:44.674Z
+[2026-08-19T07:55:07.096Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-19T07:55:07.613Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335555, Single: 7, Two: 0] | Printer [FC: 414765, BW: 374520, Single: 9, Two: 5355]
+[2026-08-19T07:55:07.614Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-19T07:55:08.047Z] INFO: Trích xuất mức mực thành công -> Black: 50%, Cyan: 70%, Magenta: 100%, Yellow: 60%
+[2026-08-19T07:55:08.047Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335555,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414765,"printerBW":374520,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":50,"tonerCyan":70,"tonerMagenta":100,"tonerYellow":60,"token":"PrinterToken2026"}
+[2026-08-19T07:55:12.279Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-19T07:55:07.916Z
+[2026-08-19T08:00:37.528Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-19T08:00:38.009Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335555, Single: 7, Two: 0] | Printer [FC: 414765, BW: 374522, Single: 9, Two: 5355]
+[2026-08-19T08:00:38.010Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-19T08:00:38.514Z] INFO: Trích xuất mức mực thành công -> Black: 50%, Cyan: 70%, Magenta: 100%, Yellow: 60%
+[2026-08-19T08:00:38.514Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335555,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414765,"printerBW":374522,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":50,"tonerCyan":70,"tonerMagenta":100,"tonerYellow":60,"token":"PrinterToken2026"}
+[2026-08-19T08:00:42.549Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-19T08:00:38.390Z
+[2026-08-19T08:01:04.779Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-19T08:01:05.299Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335555, Single: 7, Two: 0] | Printer [FC: 414765, BW: 374522, Single: 9, Two: 5355]
+[2026-08-19T08:01:05.300Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-19T08:01:05.799Z] INFO: Trích xuất mức mực thành công -> Black: 50%, Cyan: 70%, Magenta: 100%, Yellow: 60%
+[2026-08-19T08:01:05.799Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335555,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414765,"printerBW":374522,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":50,"tonerCyan":70,"tonerMagenta":100,"tonerYellow":60,"token":"PrinterToken2026"}
+[2026-08-19T08:01:10.917Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-19T08:01:05.693Z
+[2026-08-19T08:01:36.629Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-19T08:01:37.156Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335555, Single: 7, Two: 0] | Printer [FC: 414765, BW: 374523, Single: 9, Two: 5355]
+[2026-08-19T08:01:37.157Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-19T08:01:37.660Z] INFO: Trích xuất mức mực thành công -> Black: 50%, Cyan: 70%, Magenta: 100%, Yellow: 60%
+[2026-08-19T08:01:37.661Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335555,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414765,"printerBW":374523,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":50,"tonerCyan":70,"tonerMagenta":100,"tonerYellow":60,"token":"PrinterToken2026"}
+[2026-08-19T08:01:40.892Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-19T08:01:37.050Z
+[2026-08-19T08:02:00.865Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-19T08:02:01.382Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335555, Single: 7, Two: 0] | Printer [FC: 414765, BW: 374523, Single: 9, Two: 5355]
+[2026-08-19T08:02:01.382Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-19T08:02:01.890Z] INFO: Trích xuất mức mực thành công -> Black: 50%, Cyan: 70%, Magenta: 100%, Yellow: 60%
+[2026-08-19T08:02:01.890Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335555,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414765,"printerBW":374523,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":50,"tonerCyan":70,"tonerMagenta":100,"tonerYellow":60,"token":"PrinterToken2026"}
+[2026-08-19T08:02:05.835Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-19T08:02:02.081Z
+[2026-08-19T08:02:38.329Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-19T08:02:38.840Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335555, Single: 7, Two: 0] | Printer [FC: 414765, BW: 374523, Single: 9, Two: 5355]
+[2026-08-19T08:02:38.841Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-19T08:02:39.342Z] INFO: Trích xuất mức mực thành công -> Black: 50%, Cyan: 70%, Magenta: 100%, Yellow: 60%
+[2026-08-19T08:02:39.343Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335555,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414765,"printerBW":374523,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":50,"tonerCyan":70,"tonerMagenta":100,"tonerYellow":60,"token":"PrinterToken2026"}
+[2026-08-19T08:02:43.344Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-19T08:02:39.240Z
+[2026-08-19T08:04:09.724Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-19T08:04:10.248Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335555, Single: 7, Two: 0] | Printer [FC: 414765, BW: 374523, Single: 9, Two: 5355]
+[2026-08-19T08:04:10.248Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-19T08:04:10.751Z] INFO: Trích xuất mức mực thành công -> Black: 50%, Cyan: 70%, Magenta: 100%, Yellow: 60%
+[2026-08-19T08:04:10.751Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335555,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414765,"printerBW":374523,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":50,"tonerCyan":70,"tonerMagenta":100,"tonerYellow":60,"token":"PrinterToken2026"}
+[2026-08-19T08:04:13.994Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-19T08:04:10.525Z
+[2026-08-19T08:04:25.578Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-19T08:04:26.094Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335555, Single: 7, Two: 0] | Printer [FC: 414765, BW: 374523, Single: 9, Two: 5355]
+[2026-08-19T08:04:26.094Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-19T08:04:26.598Z] INFO: Trích xuất mức mực thành công -> Black: 50%, Cyan: 70%, Magenta: 100%, Yellow: 60%
+[2026-08-19T08:04:26.598Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335555,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414765,"printerBW":374523,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":50,"tonerCyan":70,"tonerMagenta":100,"tonerYellow":60,"token":"PrinterToken2026"}
+[2026-08-19T08:04:30.413Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-19T08:04:26.640Z
+[2026-08-19T08:06:56.116Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-19T08:06:56.644Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335555, Single: 7, Two: 0] | Printer [FC: 414765, BW: 374524, Single: 9, Two: 5355]
+[2026-08-19T08:06:56.644Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-19T08:06:57.173Z] INFO: Trích xuất mức mực thành công -> Black: 50%, Cyan: 70%, Magenta: 100%, Yellow: 60%
+[2026-08-19T08:06:57.173Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335555,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414765,"printerBW":374524,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":50,"tonerCyan":70,"tonerMagenta":100,"tonerYellow":60,"token":"PrinterToken2026"}
+[2026-08-19T08:07:00.874Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-19T08:06:57.066Z
+[2026-08-19T08:17:38.714Z] INFO: Đang fetch counter từ http://192.168.1.220/web/guest/en/websys/status/getUnificationCounter.cgi
+[2026-08-19T08:17:39.232Z] INFO: Trích xuất counter thành công -> Copier [FC: 141114, BW: 335555, Single: 7, Two: 0] | Printer [FC: 414765, BW: 374529, Single: 9, Two: 5355]
+[2026-08-19T08:17:39.233Z] INFO: Đang fetch status mực từ http://192.168.1.220/web/guest/en/websys/webArch/getStatus.cgi
+[2026-08-19T08:17:39.736Z] INFO: Trích xuất mức mực thành công -> Black: 50%, Cyan: 70%, Magenta: 100%, Yellow: 60%
+[2026-08-19T08:17:39.737Z] INFO: Gửi payload: {"copierFullColor":141114,"copierBW":335555,"copierSingleColor":7,"copierTwoColor":0,"printerFullColor":414765,"printerBW":374529,"printerSingleColor":9,"printerTwoColor":5355,"tonerBlack":50,"tonerCyan":70,"tonerMagenta":100,"tonerYellow":60,"token":"PrinterToken2026"}
+[2026-08-19T08:17:47.070Z] INFO: Đẩy dữ liệu lên Sheet thành công lúc 2026-08-19T08:17:42.129Z
